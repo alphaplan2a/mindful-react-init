@@ -29,12 +29,13 @@ const OrderPreviewPage = () => {
 
     const { items, userDetails } = state.orderDetails;
     const packType = sessionStorage.getItem('selectedPackType') || 'aucun';
+    const currentDate = new Date().toISOString();
 
     try {
       const formattedItems = items.map((item: any) => ({
         id: item.id,
         name: item.personalization 
-          ? `${item.name} (Personnalisation = ${item.personalization})`
+          ? `${item.name} (Personnalisation: ${item.personalization})`
           : item.name,
         price: item.price,
         quantity: item.quantity,
@@ -67,17 +68,18 @@ const OrderPreviewPage = () => {
         },
         payment: {
           method: 'cash' as const,
-          status: 'not yet',
+          status: 'pending',
           konnect_payment_url: '-',
-          completed_at: new Date().toISOString()
+          completed_at: currentDate
         },
         order_status: {
-          status: 'not yet',
+          status: 'processing',
           shipped_at: '-',
           delivered_at: '-'
         }
       };
 
+      console.log('Sending order data:', orderData);
       await submitOrder(orderData);
       
       clearCart();

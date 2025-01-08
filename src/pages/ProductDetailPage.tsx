@@ -1,23 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllProducts } from '@/services/productsApi';
 import { useCart } from '@/components/cart/CartProvider';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { ArrowLeft, Heart, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Heart, Info, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ProductImageCarousel from '@/components/product-detail/ProductImageCarousel';
 import ProductInfo from '@/components/product-detail/ProductInfo';
+import ProductOptions from '@/components/product-detail/ProductOptions';
 import RelatedProducts from '@/components/product-detail/RelatedProducts';
 import TopNavbar from '@/components/TopNavbar';
+import BrandNavbar from '@/components/BrandNavbar';
+import MainNavbar from '@/components/MainNavbar';
+import Footer from '@/components/Footer';
 import BrandNavbarSection from '@/components/productsPages/BrandNavbarSection';
-import MainNavbarProductDetails from '@/components/MainNavbarProductDetails';
+import MainNavbarProduct from '@/components/productsPages/MainNavbarProduct';
 import PersonalizationInput from '@/components/cart/PersonalizationInput';
+import { savePersonalization, getPersonalizations } from '@/utils/personalizationStorage';
+import MainNavbarProductDetails from '@/components/MainNavbarProductDetails';
 import BoxSelectionDialog from '@/components/product-detail/BoxSelectionDialog';
 import BoxInfoTooltip from '@/components/product-detail/BoxInfoTooltip';
-import StockDisplay from '@/components/product-detail/StockDisplay';
-import EnhancedQuantitySelector from '@/components/product-detail/EnhancedQuantitySelector';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -36,27 +40,17 @@ const ProductDetailPage = () => {
   });
 
   const product = products?.find(p => p.id === Number(id));
-
-  // Reset quantity when size changes
-  useEffect(() => {
-    setQuantity(1);
-  }, [selectedSize]);
-
-  const getAvailableQuantityForSize = (size: string): number => {
-    if (!product || !size) return 0;
-    const sizeKey = size.toLowerCase() === '2xxl' ? 'xxl2' : size.toLowerCase();
-    return product.sizes[sizeKey as keyof typeof product.sizes] || 0;
-  };
+  const relatedProducts = products?.filter(p => 
+    p.id !== Number(id) && p.relatedProducts === product?.relatedProducts
+  ).slice(0, 4);
 
   const availableSizes = product ? Object.entries(product.sizes)
     .filter(([_, quantity]) => quantity > 0)
-    .map(([size]) => {
-      // Convert xxl2 to 2XXL for display
-      return size === 'xxl2' ? '2XXL' : size.toUpperCase();
-    }) : [];
+    .map(([size]) => size.toUpperCase())
+    : [];
 
   const handleAddToCart = (withBox?: boolean) => {
-    if (!product || !selectedSize) {
+    if (!selectedSize) {
       toast({
         title: "Veuillez sélectionner une taille",
         description: "Une taille doit être sélectionnée avant d'ajouter au panier",
@@ -65,34 +59,28 @@ const ProductDetailPage = () => {
       return;
     }
 
-    const availableQuantity = getAvailableQuantityForSize(selectedSize);
-    
-    if (quantity > availableQuantity) {
-      toast({
-        title: "Quantité non disponible",
-        description: `Il ne reste que ${availableQuantity} pièces disponibles pour la taille ${selectedSize}`,
-        variant: "destructive",
-      });
-      return;
+    const trimmedText = personalizationText?.trim() || '';
+    if (trimmedText) {
+      savePersonalization(product!.id, trimmedText);
     }
 
-    const trimmedText = personalizationText?.trim() || '';
+    const itemName = withBox ? `${product!.name} [+ Box]` : product!.name;
 
     addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
+      id: product!.id,
+      name: itemName,
+      price: product!.price,
       quantity: quantity,
-      image: product.image,
+      image: product!.image,
       size: selectedSize,
-      color: product.colorProduct,
+      color: product!.colorProduct,
       personalization: trimmedText,
       withBox: withBox
     });
 
     toast({
       title: "Produit ajouté au panier",
-      description: `${quantity}x ${product.name} (${selectedSize}) ajouté avec succès`,
+      description: `${quantity}x ${itemName} (${selectedSize}) ajouté avec succès`,
       style: {
         backgroundColor: '#700100',
         color: 'white',
@@ -132,7 +120,12 @@ const ProductDetailPage = () => {
     );
   }
 
-  const currentSizeStock = getAvailableQuantityForSize(selectedSize);
+  const productImages = [
+    product.image,
+    product.image2,
+    product.image3,
+    product.image4,
+  ].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -159,7 +152,7 @@ const ProductDetailPage = () => {
               >
                 <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-[#700100] text-[#700100]' : 'text-gray-400'}`} />
               </button>
-              <ProductImageCarousel images={[product.image]} name={product.name} />
+              <ProductImageCarousel images={productImages} name={product.name} />
             </div>
 
             <div className="space-y-8">
@@ -169,7 +162,13 @@ const ProductDetailPage = () => {
                 price={product.price}
               />
 
-              <StockDisplay quantity={product.quantity} />
+              <div className="mt-6">
+                <PersonalizationInput
+                  itemId={product.id}
+                  onUpdate={setPersonalizationText}
+                />
+              </div>
+              <div className="h-px bg-gray-200" />
 
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -181,7 +180,7 @@ const ProductDetailPage = () => {
                       Guide des tailles
                     </button>
                   </div>
-                  <div className="grid grid-cols-6 gap-1">
+                  <div className="grid grid-cols-7 gap-1">
                     {availableSizes.map((size) => (
                       <button
                         key={size}
@@ -198,20 +197,26 @@ const ProductDetailPage = () => {
                   </div>
                 </div>
 
-                {selectedSize && (
-                  <EnhancedQuantitySelector
-                    quantity={quantity}
-                    maxQuantity={currentSizeStock}
-                    onQuantityChange={setQuantity}
-                  />
-                )}
-
-                <div className="mt-6">
-                  <PersonalizationInput
-                    itemId={product.id}
-                    onUpdate={setPersonalizationText}
-                  />
-                </div>
+                <div className="space-y-2">
+  <span className="text-base font-semibold text-gray-900">Quantité</span>
+  <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 w-fit">
+    <button
+      onClick={() => setQuantity(q => Math.max(1, q - 1))}
+      className="p-1 rounded-md text-black text-lg"
+      style={{ fontSize: 40 }} // Increase font size by 20%
+    >
+      -
+    </button>
+    <span className="w-8 text-center font-medium text-gray-900">{quantity}</span>
+    <button
+      onClick={() => setQuantity(q => q + 1)}
+      className="p-1 rounded-md text-black text-lg"
+      style={{ fontSize: 40 }} // Increase font size by 20%
+    >
+      +
+    </button>
+  </div>
+</div>
 
                 {product.itemgroup_product === 'chemises' && (
                   <div className="space-y-2">
@@ -255,16 +260,16 @@ const ProductDetailPage = () => {
                 <Button
                   onClick={handleInitialAddToCart}
                   className="w-full h-12 bg-[#700100] hover:bg-[#5a0100] text-white text-lg font-medium transition-all duration-300 rounded-md"
-                  disabled={!selectedSize || !currentSizeStock}
+                  disabled={!product.quantity}
                 >
                   <ShoppingBag className="mr-2 h-5 w-5" />
-                  {!currentSizeStock ? "Rupture de stock" : "Ajouter au panier"}
+                  {!product.quantity ? "Rupture de stock" : "Ajouter au panier"}
                 </Button>
               </div>
             </div>
           </div>
 
-          {product.relatedProducts && (
+          {relatedProducts && relatedProducts.length > 0 && (
             <motion.section 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -274,13 +279,12 @@ const ProductDetailPage = () => {
               <h2 className="text-2xl font-['WomanFontBold'] text-[#700100] mb-8">
                 Produits similaires
               </h2>
-              <RelatedProducts products={products?.filter(p => 
-                p.id !== product.id && p.relatedProducts === product.relatedProducts
-              ).slice(0, 4) || []} />
+              <RelatedProducts products={relatedProducts} />
             </motion.section>
           )}
         </div>
       </main>
+      <Footer />
 
       <BoxSelectionDialog
         isOpen={isBoxDialogOpen}

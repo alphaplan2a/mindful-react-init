@@ -6,10 +6,10 @@ interface ProductDetailContentProps {
   material: string;
   color: string;
   id: number;
-  quantity: number;
 }
 
-const ProductDetailContent = ({ description, material, color, id, quantity }: ProductDetailContentProps) => {
+const ProductDetailContent = ({ description, material, color, id }: ProductDetailContentProps) => {
+  // Split the description by \n and map each line to a paragraph with proper spacing
   const formattedDescription = description.split('\\n').map((line, index) => (
     <p key={index} className="text-gray-600 py-1">{line.trim()}</p>
   ));
@@ -29,7 +29,6 @@ const ProductDetailContent = ({ description, material, color, id, quantity }: Pr
               <li>• Matière: {material}</li>
               <li>• Couleur: {color}</li>
               <li>• Référence: {id.toString().padStart(6, '0')}</li>
-              <li>• Stock disponible: {quantity} pièces</li>
             </ul>
           </div>
         </div>

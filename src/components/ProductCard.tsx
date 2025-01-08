@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
-import { Badge } from "@/components/ui/badge";
 
 interface ProductCardProps {
   product: Product;
@@ -9,13 +8,10 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
-  
-  // Calculate total quantity across all sizes
-  const totalQuantity = Object.values(product.sizes).reduce((sum, qty) => sum + qty, 0);
 
   return (
     <div 
-      className="h-full hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-300 cursor-pointer relative"
+      className="h-full hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-300 cursor-pointer"
       onClick={() => navigate(`/product/${product.id}`)}
     >
       <div className="h-[300px] bg-transparent overflow-hidden mb-3">
@@ -34,11 +30,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {product.material}<br />
           {product.color}
         </div>
-        <div className="mt-2 font-['WomanFontRegular'] text-black flex justify-between items-center">
-          <span>{product.price} TND</span>
-          <Badge variant="outline" className="bg-gray-50">
-            {totalQuantity} en stock
-          </Badge>
+        <div className="mt-2 font-['WomanFontRegular'] text-black">
+          {product.price} TND
         </div>
       </div>
     </div>

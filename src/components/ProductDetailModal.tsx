@@ -28,6 +28,14 @@ interface ProductDetailModalProps {
     description: string;
     status: string;
     itemgroup_product: string;
+    sizes: {
+      s: number;
+      m: number;
+      l: number;
+      xl: number;
+      xxl: number;
+      xxl2: number;
+    };
   };
 }
 
@@ -49,6 +57,19 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
       toast({
         title: "Veuillez sélectionner une taille",
         description: "Une taille doit être sélectionnée avant d'ajouter au panier",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get the available quantity for the selected size
+    const sizeKey = selectedSize.toLowerCase() === '2xxl' ? 'xxl2' : selectedSize.toLowerCase();
+    const availableQuantity = product.sizes[sizeKey as keyof typeof product.sizes] || 0;
+
+    if (quantity > availableQuantity) {
+      toast({
+        title: "Quantité non disponible",
+        description: `Il ne reste que ${availableQuantity} pièces disponibles pour la taille ${selectedSize}`,
         variant: "destructive",
       });
       return;
@@ -82,7 +103,11 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
 
   const handleInitialAddToCart = () => {
     if (product.itemgroup_product === 'chemises') {
-      setIsBoxDialogOpen(true);
+      if (selectedBoxOption !== null) {
+        handleAddToCart(selectedBoxOption);
+      } else {
+        setIsBoxDialogOpen(true);
+      }
     } else {
       handleAddToCart(false);
     }
@@ -135,7 +160,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
               <div className="p-6 space-y-6">
                 <SizeSelector
                   selectedSize={selectedSize}
-                  sizes={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
+                  sizes={product.sizes}
                   onSizeSelect={setSelectedSize}
                 />
 

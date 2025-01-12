@@ -6,6 +6,7 @@ import GiftPackContainer from './containers/GiftPackContainer';
 import AddItemDialog from './dialogs/AddItemDialog';
 import ProductDetailsDialog from './dialogs/ProductDetailsDialog';
 import AddItemParticles from '../effects/AddItemParticles';
+import BoxRevealAnimation from './animations/BoxRevealAnimation';
 
 interface GiftBasket3DProps {
   items: Product[];
@@ -78,7 +79,9 @@ const GiftBasket3D = ({
 
   return (
     <div className="space-y-2">
-      <div className="p-6 bg-black/95 border border-gray-800 rounded-xl shadow-2xl">
+      <div className="p-6 bg-black/95 border border-gray-800 rounded-xl shadow-2xl relative">
+        <BoxRevealAnimation containerCount={containerCount} />
+        
         {containerCount === 3 ? (
           <div className="flex gap-3">
             {/* Left side - GRAND FORMAT container */}

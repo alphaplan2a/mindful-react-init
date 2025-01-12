@@ -41,15 +41,16 @@ const GiftUniversePage = () => {
         <MainNavbar />
       </div>
       <br />
-      <div className="flex flex-col items-center justify-center">
-        {showNewPage ? (
-          <GiftApp />
-        ) : showGiftBox ? (
-          <GiftBox onAnimationComplete={() => setShowNewPage(true)} />
-        ) : (
-          currentComponent
-        )}
-      </div>
+      <div className="lg:mt-[0.5%] mt-[-15%]">
+  {showNewPage ? (
+    <GiftApp />
+  ) : showGiftBox ? (
+      <GiftBox onAnimationComplete={() => setShowNewPage(true)} />
+  ) : (
+    currentComponent
+  )}
+    </div>
+
       <Footer />
     </div>
   );

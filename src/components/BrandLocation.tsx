@@ -70,7 +70,7 @@ const BrandLocation = () => {
                 <img src="Thestore.png" alt="Fiori Les Berges du Lac" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white bg-[#591C1C]/90">
                   <p className="text-lg font-['WomanFontBold']">
-                    Rue du Lac Tibériade,<br />Les Berges du lac, La Marsa, Tunisia
+                    Rue du Lac Tibériade , Les Berges du lac
                   </p>
                 </div>
               </div>
@@ -82,7 +82,7 @@ const BrandLocation = () => {
                 <img src="Thestand.png" alt="Fiori Tunisia Mall" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white bg-[#591C1C]/90">
                   <p className="text-lg font-['WomanFontBold']">
-                    Tunisia mall,Les Berges Du Lac II<br />En face Zara et Zayn
+                    Tunisia mall,Les Berges Du Lac II
                   </p>
                 </div>
               </div>

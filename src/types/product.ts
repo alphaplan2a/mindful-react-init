@@ -20,7 +20,7 @@ export interface Product {
     l: number;
     xl: number;
     xxl: number;
-    xxl2: number;
+    "3xl": number;
   };
   quantity: number;
   type_product: string;

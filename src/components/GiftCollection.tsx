@@ -2,11 +2,11 @@ import React from "react";
 
 const GiftCollection = () => {
   const items = [
-    { src: "https://via.placeholder.com/300", label: "GIFT GUIDE", href: "#gift-guide" },
-    { src: "https://via.placeholder.com/300", label: "LUXURY GIFTS", href: "#luxury-gifts" },
-    { src: "https://via.placeholder.com/300", label: "MUST HAVE GIFTS", href: "#must-have-gifts" },
-    { src: "https://via.placeholder.com/300", label: "GIFT CARDS", href: "#gift-cards" },
-    { src: "https://via.placeholder.com/300", label: "SERVICES", href: "#services" },
+    { src: "GiftGuide.png", label: "GIFT GUIDE", href: "#gift-guide" },
+    { src: "LuxurtGifts.png", label: "LUXURY GIFTS", href: "#luxury-gifts" },
+    { src: "MustHaveGifts.png", label: "MUST HAVE GIFTS", href: "#must-have-gifts" },
+    { src: "GiftCards.png", label: "GIFT CARDS", href: "#gift-cards" },
+    { src: "Services.png", label: "SERVICES", href: "#services" },
   ];
 
   return (

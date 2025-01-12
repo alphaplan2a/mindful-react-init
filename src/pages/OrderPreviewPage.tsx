@@ -116,7 +116,8 @@ const OrderPreviewPage = () => {
   return (
     <div className="min-h-screen bg-[#F1F0FB]">
       <TopNavbar />
-      <div className="container mx-auto px-4 py-8 mt-24">
+    
+      <div className="container mx-auto px-4 py-8 mt-24 lg:mt-[0.5%] mt-[-15%]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -75,7 +75,7 @@ const Footer = () => {
             <h3 className="font-semibold text-sm mb-4">CONTACTEZ-NOUS</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2">
-                <span className="inline-block">+212-529-15-93-92</span>
+                <span className="inline-block">+216 29 509 840</span>
               </li>
               <li>
                 <a href="#" className="hover:underline flex items-center gap-2">
@@ -121,12 +121,12 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-sm mb-4">NOS PAGES</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="/footer-category/le-monde-fiori" className="hover:underline">Le monde Fiori</a></li>
-              <li><a href="/footer-category/univers-cadeaux" className="hover:underline">L'univers Cadeaux</a></li>
-              <li><a href="/footer-category/pret-a-porter" className="hover:underline">Le prét à porter</a></li>
-              <li><a href="/footer-category/accessoires" className="hover:underline">Accessoires</a></li>
-              <li><a href="/footer-category/sur-mesure" className="hover:underline">Le sur mesure</a></li>
-              <li><a href="/footer-category/outlet" className="hover:underline">Outlet</a></li>
+              <li><a href="/monde-fiori/histoire" className="hover:underline">Le monde Fiori</a></li>
+              <li><a href="/univers-cadeaux" className="hover:underline">L'univers Cadeaux</a></li>
+              <li><a href="/category/pret-a-porter/homme/costumes" className="hover:underline">Le prét à porter</a></li>
+              <li><a href="/category/accessoires/homme/portefeuilles" className="hover:underline">Accessoires</a></li>
+              <li><a href="/sur-mesure" className="hover:underline">Le sur mesure</a></li>
+              <li><a href="/category/outlet/femme/chemises" className="hover:underline">Outlet</a></li>
             </ul>
             <div className="mt-8">
               <p className="text-sm mb-2">Nous acceptons</p>

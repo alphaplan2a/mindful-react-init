@@ -117,7 +117,7 @@ const PaymentButtons = ({
           className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           <CreditCard size={20} />
-          Payer avec Konnekt ({finalTotal.toFixed(2)} TND)
+          Payer En Ligne ({finalTotal.toFixed(2)} TND)
         </motion.button>
         
         {showCashPayment && (

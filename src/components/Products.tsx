@@ -58,7 +58,7 @@ const Products = () => {
   return (
     <div className="products-wrapper">
       <div className="products-container">
-        <h1 className="products-title">New Products</h1>
+        <h1 className="products-title">Nos produits</h1>
         <Categories />
         <div className="embla" ref={emblaRef}>
           <div className="embla__container">

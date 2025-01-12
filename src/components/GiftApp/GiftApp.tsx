@@ -8,7 +8,6 @@ import ProductSelectionPanel from "./ProductSelectionPanel";
 import GiftBasket3D from "./GiftBasket3D";
 import PackSummary from "./PackSummary";
 import ConfirmationButton from "./ConfirmationButton";
-import RevealAnimation from "./animations/RevealAnimation";
 import { Product } from "@/types/product";
 import { Package2, Gift } from 'lucide-react';
 
@@ -20,7 +19,6 @@ export interface GiftPack {
 
 const GiftApp = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [showRevealAnimation, setShowRevealAnimation] = useState(true);
   const [selectedItems, setSelectedItems] = useState<Product[]>([]);
   const [packNote, setPackNote] = useState("");
   const [selectedContainerIndex, setSelectedContainerIndex] = useState(0);
@@ -230,79 +228,74 @@ const GiftApp = () => {
   }
 
   return (
-    <>
-      {showRevealAnimation && (
-        <RevealAnimation onAnimationComplete={() => setShowRevealAnimation(false)} />
-      )}
-      <div className="min-h-screen bg-gradient-to-b bg-[#f6f7f9] py-16 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b bg-[#f6f7f9] py-16 px-4 md:px-8">
+      <div className="max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <div className="inline-flex items-center justify-center gap-3 mb-4">
+            <Package2 className="w-8 h-8 text-[#700100]" />
+            <h1 className="text-3xl font-['WomanFontBold'] text-[#700100]">
+              {packType}
+            </h1>
+            <Gift className="w-8 h-8 text-[#700100]" />
+          </div>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Sélectionnez vos articles préférés et créez un pack cadeau unique qui fera plaisir à vos proches.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
+            className="lg:col-span-4 h-full"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="inline-flex items-center justify-center gap-3 mb-4">
-              <Package2 className="w-8 h-8 text-[#700100]" />
-              <h1 className="text-3xl font-['WomanFontBold'] text-[#700100]">
-                {packType}
-              </h1>
-              <Gift className="w-8 h-8 text-[#700100]" />
-            </div>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Sélectionnez vos articles préférés et créez un pack cadeau unique qui fera plaisir à vos proches.
-            </p>
+            <ProductSelectionPanel 
+              onItemDrop={handleItemDrop}
+              packType={packType}
+              selectedContainerIndex={selectedContainerIndex}
+              selectedItems={selectedItems}
+            />
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <motion.div 
-              className="lg:col-span-4 h-full"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <ProductSelectionPanel 
-                onItemDrop={handleItemDrop}
-                packType={packType}
-                selectedContainerIndex={selectedContainerIndex}
-                selectedItems={selectedItems}
-              />
-            </motion.div>
+          <motion.div 
+            className="lg:col-span-5"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <GiftBasket3D 
+              items={selectedItems}
+              onItemDrop={handleItemDrop}
+              onRemoveItem={handleRemoveItem}
+              containerCount={containerCount}
+              onContainerSelect={setSelectedContainerIndex}
+            />
+          </motion.div>
 
-            <motion.div 
-              className="lg:col-span-5"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <GiftBasket3D 
-                items={selectedItems}
-                onItemDrop={handleItemDrop}
-                onRemoveItem={handleRemoveItem}
-                containerCount={containerCount}
-                onContainerSelect={setSelectedContainerIndex}
-              />
-            </motion.div>
-
-            <motion.div 
-              className="lg:col-span-3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <PackSummary
-                items={selectedItems}
-                note={packNote}
-                onNoteChange={setPackNote}
-              />
-              <ConfirmationButton
-                onConfirm={handleConfirmPack}
-                disabled={selectedItems.length === 0}
-              />
-            </motion.div>
-          </div>
+          <motion.div 
+            className="lg:col-span-3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <PackSummary
+              items={selectedItems}
+              note={packNote}
+              onNoteChange={setPackNote}
+            />
+            <ConfirmationButton
+              onConfirm={handleConfirmPack}
+              disabled={selectedItems.length === 0}
+            />
+          </motion.div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

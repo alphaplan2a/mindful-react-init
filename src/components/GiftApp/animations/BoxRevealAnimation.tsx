@@ -11,7 +11,7 @@ const BoxRevealAnimation = ({ containerCount }: BoxRevealAnimationProps) => {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-    }, 4000);
+    }, 2000); // Changed to 2 seconds
 
     return () => clearTimeout(timer);
   }, []);
@@ -29,9 +29,7 @@ const BoxRevealAnimation = ({ containerCount }: BoxRevealAnimationProps) => {
               ease: "easeInOut"
             }
           }}
-          className={`absolute inset-0 z-50 flex items-center justify-center 
-            ${containerCount === 3 ? 'h-[583px]' : 'h-[620px]'} 
-            bg-black/95 backdrop-blur-sm`}
+          className="absolute inset-0 z-50 flex items-center justify-center w-full h-full bg-black/95 backdrop-blur-sm"
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}

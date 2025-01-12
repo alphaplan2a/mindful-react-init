@@ -3,18 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface BoxRevealAnimationProps {
   containerCount: number;
+  trigger?: 'initial' | 'itemAdded';
 }
 
-const BoxRevealAnimation = ({ containerCount }: BoxRevealAnimationProps) => {
+const BoxRevealAnimation = ({ containerCount, trigger = 'initial' }: BoxRevealAnimationProps) => {
   const [isVisible, setIsVisible] = React.useState(true);
 
   React.useEffect(() => {
+    if (trigger === 'itemAdded') {
+      setIsVisible(true);
+    }
+    
     const timer = setTimeout(() => {
       setIsVisible(false);
     }, 2000); // Changed to 2 seconds
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [trigger]);
 
   return (
     <AnimatePresence>

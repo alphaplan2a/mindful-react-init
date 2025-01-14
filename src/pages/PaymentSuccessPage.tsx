@@ -225,6 +225,7 @@ const PaymentSuccessPage = () => {
               color: 'white',
               border: '1px solid #590000',
             },
+            duration: Infinity
           });
         }
         

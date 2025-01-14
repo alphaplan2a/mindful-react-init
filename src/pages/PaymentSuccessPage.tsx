@@ -62,31 +62,84 @@ const PaymentSuccessPage = () => {
         const packType = sessionStorage.getItem('selectedPackType') || null;
         console.log('Pack type:', packType);
 
-        // Format items with correct price calculations
+        // Format items with correct price calculations and pack information
         const formattedItems = pendingOrder.cartItems.map((item: any) => {
           console.log('Processing item price calculation:', {
             id: item.id,
             price: item.price,
             quantity: item.quantity,
-            withBox: item.withBox
+            withBox: item.withBox,
+            discount_product: item.discount_product,
+            fromPack: item.fromPack,
+            packType: packType
           });
 
-          const itemTotal = item.price * item.quantity;
+          // Calculate discounted price if applicable
+          const itemPrice = item.discount_product ? 
+            item.price * (1 - parseFloat(item.discount_product) / 100) : 
+            item.price;
+
+          // Calculate box price if selected
           const boxPrice = item.withBox ? 30 * item.quantity : 0;
+
+          // Format item name with pack/box information
+          let formattedName = item.name;
+          if (packType && item.fromPack) {
+            formattedName += ` (${packType})`;
+          }
+          if (item.withBox) {
+            formattedName += ' (+Box)';
+          }
+
+          // Format image URL
+          const imageUrl = item.image.startsWith('http') ? 
+            item.image : 
+            `https://respizenmedical.com/fiori/${item.image}`;
 
           return {
             item_id: item.id.toString(),
             quantity: item.quantity,
-            price: item.price, // Original item price
-            total_price: itemTotal + boxPrice, // Total price including box if selected
-            name: item.name,
+            price: itemPrice, // Discounted price if applicable
+            total_price: (itemPrice * item.quantity) + boxPrice,
+            name: formattedName,
             size: item.size || '-',
             color: item.color || '-',
             personalization: item.personalization || '-',
             pack: packType || 'aucun',
-            box: item.withBox ? 'Avec box' : 'Sans box'
+            box: item.withBox ? 'Avec box' : 'Sans box',
+            image: imageUrl
           };
         });
+
+        // Add pack as a separate item if it exists
+        if (packType) {
+          const packPrices = {
+            'Pack Prestige': 50,
+            'Pack Premium': 30,
+            'Pack Trio': 20,
+            'Pack Duo': 20,
+            'Pack Mini Duo': 0,
+            'Pack Chemise': 10
+          };
+
+          const packPrice = packPrices[packType as keyof typeof packPrices] || 0;
+          
+          if (packPrice > 0) {
+            formattedItems.push({
+              item_id: `pack-${Date.now()}`,
+              quantity: 1,
+              price: packPrice,
+              total_price: packPrice,
+              name: `${packType} - Frais de packaging`,
+              size: '-',
+              color: '-',
+              personalization: '-',
+              pack: packType,
+              box: '-',
+              image: '/Menu/Sur musure .png'
+            });
+          }
+        }
 
         // Calculate order totals using CartProvider's calculateTotal
         const orderData = {
@@ -232,7 +285,6 @@ const PaymentSuccessPage = () => {
       </motion.div>
     </div>
   );
-
 };
 
 export default PaymentSuccessPage;

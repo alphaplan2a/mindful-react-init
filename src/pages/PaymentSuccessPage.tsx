@@ -6,20 +6,18 @@ import { useCart } from '@/components/cart/CartProvider';
 import { updateProductStock } from '@/utils/stockManagement';
 import { submitOrder } from '@/services/orderSubmissionApi';
 import { toast } from "@/hooks/use-toast";
-import { calculateDiscountedPrice } from '@/utils/priceCalculations';
 import { getUserDetails } from '@/utils/userDetailsStorage';
 
 const PaymentSuccessPage = () => {
   const navigate = useNavigate();
   const { clearCart, cartItems, hasNewsletterDiscount, calculateTotal } = useCart();
-  const { subtotal, discount: newsletterDiscount, total } = calculateTotal();
+  const { subtotal, discount: newsletterDiscount, total, boxTotal } = calculateTotal();
   const shipping = subtotal > 500 ? 0 : 7;
   const finalTotal = total + shipping;
 
   useEffect(() => {
     const handlePaymentSuccess = async () => {
       try {
-        // First, check for pending order
         const pendingOrderString = sessionStorage.getItem('pendingOrder');
         if (!pendingOrderString) {
           console.error('No pending order found');
@@ -35,13 +33,8 @@ const PaymentSuccessPage = () => {
         const pendingOrder = JSON.parse(pendingOrderString);
         console.log('Processing pending order:', pendingOrder);
         
-        // Try to get user details from localStorage first (persistent storage)
         const userDetails = getUserDetails();
-        
-        // If not in localStorage, try sessionStorage
         const sessionUserDetails = sessionStorage.getItem('userDetails');
-        
-        // Combine both sources, preferring localStorage
         const finalUserDetails = userDetails || (sessionUserDetails ? JSON.parse(sessionUserDetails) : null);
         
         if (!finalUserDetails) {
@@ -55,7 +48,6 @@ const PaymentSuccessPage = () => {
             variant: "destructive"
           });
           
-          // Navigate back to cart after a delay
           setTimeout(() => {
             navigate('/cart');
           }, 3000);
@@ -70,26 +62,23 @@ const PaymentSuccessPage = () => {
         const packType = sessionStorage.getItem('selectedPackType') || null;
         console.log('Pack type:', packType);
 
-        // Format items according to API structure
+        // Format items with correct price calculations
         const formattedItems = pendingOrder.cartItems.map((item: any) => {
-          const originalPrice = parseFloat(item.price);
-          let finalPrice = originalPrice;
-
-          if (item.discount_product) {
-            finalPrice = calculateDiscountedPrice(originalPrice, item.discount_product);
-          }
-
-          console.log('Processing item:', {
+          console.log('Processing item price calculation:', {
             id: item.id,
-            originalPrice,
-            finalPrice,
-            discount: item.discount_product
+            price: item.price,
+            quantity: item.quantity,
+            withBox: item.withBox
           });
+
+          const itemTotal = item.price * item.quantity;
+          const boxPrice = item.withBox ? 30 * item.quantity : 0;
 
           return {
             item_id: item.id.toString(),
             quantity: item.quantity,
-            price: finalPrice,
+            price: item.price, // Original item price
+            total_price: itemTotal + boxPrice, // Total price including box if selected
             name: item.name,
             size: item.size || '-',
             color: item.color || '-',
@@ -99,11 +88,7 @@ const PaymentSuccessPage = () => {
           };
         });
 
-        // Calculate totals
-        const orderTotal = formattedItems.reduce((sum, item) => 
-          sum + (item.price * item.quantity), 0);
-
-        // Prepare order data according to API structure
+        // Calculate order totals using CartProvider's calculateTotal
         const orderData = {
           order_id: pendingOrder.orderId,
           user_details: {
@@ -117,11 +102,12 @@ const PaymentSuccessPage = () => {
           },
           items: formattedItems,
           price_details: {
-            subtotal: orderTotal,
+            subtotal: subtotal,
+            box_total: boxTotal,
             shipping_cost: shipping,
             has_newsletter_discount: hasNewsletterDiscount,
             newsletter_discount_amount: newsletterDiscount,
-            final_total: orderTotal + shipping - newsletterDiscount
+            final_total: finalTotal
           },
           payment: {
             method: 'card' as const,
@@ -136,10 +122,8 @@ const PaymentSuccessPage = () => {
           }
         };
 
-        // Log the complete order data being sent to API
-        console.log('Submitting order data to API:', JSON.stringify(orderData, null, 2));
+        console.log('Submitting order data to API with corrected prices:', JSON.stringify(orderData, null, 2));
 
-        // Check if we're in test mode
         const isTestMode = pendingOrder.payUrl === 'test-mode';
         
         if (isTestMode) {
@@ -208,7 +192,7 @@ const PaymentSuccessPage = () => {
     };
 
     handlePaymentSuccess();
-  }, [clearCart, hasNewsletterDiscount, subtotal, newsletterDiscount, finalTotal, shipping, navigate]);
+  }, [clearCart, hasNewsletterDiscount, subtotal, newsletterDiscount, finalTotal, shipping, navigate, total, boxTotal]);
 
   return (
     <div className="min-h-screen bg-[#F1F0FB] flex items-center justify-center p-4">
@@ -248,6 +232,7 @@ const PaymentSuccessPage = () => {
       </motion.div>
     </div>
   );
+
 };
 
 export default PaymentSuccessPage;

@@ -63,7 +63,7 @@ const PaymentSuccessPage = () => {
         console.log('Pack type:', packType);
 
         // Format items with correct price calculations and pack information
-        const formattedItems = pendingOrder.cartItems.map((item: any) => {
+        const formattedItems = pendingOrder.cartItems.flatMap((item: any) => {
           console.log('Processing item price calculation:', {
             id: item.id,
             price: item.price,
@@ -79,9 +79,6 @@ const PaymentSuccessPage = () => {
             item.price * (1 - parseFloat(item.discount_product) / 100) : 
             item.price;
 
-          // Calculate box price if selected
-          const boxPrice = item.withBox ? 30 * item.quantity : 0;
-
           // Format item name with pack/box information
           let formattedName = item.name;
           if (packType && item.fromPack) {
@@ -96,11 +93,11 @@ const PaymentSuccessPage = () => {
             item.image : 
             `https://respizenmedical.com/fiori/${item.image}`;
 
-          return {
+          const items = [{
             item_id: item.id.toString(),
             quantity: item.quantity,
-            price: itemPrice, // Discounted price if applicable
-            total_price: (itemPrice * item.quantity) + boxPrice,
+            price: itemPrice,
+            total_price: itemPrice * item.quantity,
             name: formattedName,
             size: item.size || '-',
             color: item.color || '-',
@@ -108,7 +105,26 @@ const PaymentSuccessPage = () => {
             pack: packType || 'aucun',
             box: item.withBox ? 'Avec box' : 'Sans box',
             image: imageUrl
-          };
+          }];
+
+          // Add box as a separate item if selected
+          if (item.withBox) {
+            items.push({
+              item_id: `box-${item.id}-${Date.now()}`,
+              quantity: item.quantity,
+              price: 30,
+              total_price: 30 * item.quantity,
+              name: `Boîte cadeau pour ${item.name}`,
+              size: '-',
+              color: '-',
+              personalization: '-',
+              pack: packType || 'aucun',
+              box: 'Box article',
+              image: '/BoxToSelected.png'
+            });
+          }
+
+          return items;
         });
 
         // Add pack as a separate item if it exists

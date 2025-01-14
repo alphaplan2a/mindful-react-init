@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CreditCard, Wallet } from 'lucide-react';
+import React, { useState } from 'react';
+import { CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
@@ -16,25 +16,17 @@ interface PaymentButtonsProps {
   hasPersonalization: boolean;
 }
 
+// Development flag for bypassing payment
+const BYPASS_PAYMENT = 0; // Set to 1 to use real payment processing
+
 const PaymentButtons = ({ 
   enabled, 
   cartItems, 
   userDetails, 
-  total, 
-  shipping, 
-  finalTotal,
-  hasPersonalization
+  finalTotal
 }: PaymentButtonsProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [showCashPayment, setShowCashPayment] = useState(true);
-
-  useEffect(() => {
-    const hasAnyPersonalization = cartItems.some(item => 
-      item.personalization && item.personalization.trim() !== ''
-    );
-    setShowCashPayment(!hasAnyPersonalization);
-  }, [cartItems]);
 
   const handleKonnectPayment = async () => {
     if (!enabled || !userDetails) {
@@ -47,25 +39,43 @@ const PaymentButtons = ({
     }
 
     setIsLoading(true);
+    console.log('Payment process started. BYPASS_PAYMENT =', BYPASS_PAYMENT);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 6000));
-
       const orderId = `ORDER-${Date.now()}`;
-      const response = await initKonnectPayment({
-        amount: finalTotal,
-        firstName: userDetails.firstName,
-        lastName: userDetails.lastName,
-        email: userDetails.email,
-        orderId,
-      });
 
-      sessionStorage.setItem('pendingOrder', JSON.stringify({
-        cartItems,
-        orderId
-      }));
+      if (BYPASS_PAYMENT === 0) {
+        console.log('Payment bypassed for testing - simulating successful payment');
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate loading
 
-      window.location.href = response.payUrl;
+        // Store order details in session storage
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          cartItems,
+          orderId,
+          payUrl: 'test-mode'
+        }));
+
+        // Redirect to success page
+        navigate('/payment-success');
+      } else {
+        console.log('Initiating real payment process');
+        await new Promise(resolve => setTimeout(resolve, 6000));
+
+        const response = await initKonnectPayment({
+          amount: finalTotal,
+          firstName: userDetails.firstName,
+          lastName: userDetails.lastName,
+          email: userDetails.email,
+          orderId,
+        });
+
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          cartItems,
+          orderId
+        }));
+
+        window.location.href = response.payUrl;
+      }
     } catch (error) {
       console.error('Payment error:', error);
       toast({
@@ -75,30 +85,6 @@ const PaymentButtons = ({
       });
       setIsLoading(false);
     }
-  };
-
-  const handleCashPayment = () => {
-    if (!enabled || !userDetails) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir vos coordonnées d'abord",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    navigate('/order-preview', {
-      state: {
-        orderDetails: {
-          items: cartItems,
-          userDetails,
-          total,
-          shipping,
-          finalTotal,
-          paymentMethod: 'cash'
-        }
-      }
-    });
   };
 
   return (
@@ -117,22 +103,10 @@ const PaymentButtons = ({
           className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           <CreditCard size={20} />
-          Payer En Ligne ({finalTotal.toFixed(2)} TND)
+          {BYPASS_PAYMENT === 0 ? 
+            `Payer (Mode Test) (${finalTotal.toFixed(2)} TND)` : 
+            `Payer avec carte bancaire (${finalTotal.toFixed(2)} TND)`}
         </motion.button>
-        
-        {showCashPayment && (
-          <motion.button
-            initial={{ opacity: 0.5 }}
-            animate={{ opacity: enabled ? 1 : 0.5 }}
-            whileHover={enabled ? { scale: 1.02 } : {}}
-            onClick={handleCashPayment}
-            disabled={!enabled || isLoading}
-            className="w-full border border-[#700100] text-[#700100] px-4 py-3 rounded-md hover:bg-[#F1F0FB] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-          >
-            <Wallet size={20} />
-            Payer en espèces ({finalTotal.toFixed(2)} TND)
-          </motion.button>
-        )}
       </div>
     </>
   );

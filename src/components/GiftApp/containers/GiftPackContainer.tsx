@@ -87,30 +87,16 @@ const GiftPackContainer = ({
 
   return (
     <>
-      <motion.div
+      <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`relative transition-all duration-300 transform perspective-1000 hover:rotate-y-2 hover:rotate-x-2 ${className}`}
-        style={{
-          transformStyle: 'preserve-3d',
-          perspective: '1000px',
-          transform: 'rotateX(5deg) rotateY(-5deg)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        }}
-        whileHover={{
-          scale: 1.02,
-          rotateX: 0,
-          rotateY: 0,
-          transition: { duration: 0.3 },
-        }}
+        className={`relative transition-all duration-300 ${className}`}
       >
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
-          <h3 className={`text-lg font-medium ${item ? 'text-[#700100]' : 'text-white'} mb-2 transform translate-z-10`}>
-            {title}
-          </h3>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          <h3 className={`text-lg font-medium ${item ? 'text-[#700100]' : 'text-white'} mb-2`}>{title}</h3>
           {!item && (
-            <p className="text-sm text-gray-400 text-center transform translate-z-10">
+            <p className="text-sm text-gray-400 text-center">
               Glissez et déposez un article ici
             </p>
           )}
@@ -118,10 +104,10 @@ const GiftPackContainer = ({
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="relative w-full h-full group transform translate-z-20"
+              className="relative w-full h-full group"
             >
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-4/5 h-4/5 p-4 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg border border-gray-800/30 transition-all duration-300 group-hover:shadow-xl transform translate-z-30">
+                <div className="relative w-4/5 h-4/5 p-4 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg border border-gray-800/30 transition-all duration-300 group-hover:shadow-xl">
                   <img
                     src={item.image}
                     alt={item.name}
@@ -147,7 +133,7 @@ const GiftPackContainer = ({
             </motion.div>
           )}
         </div>
-      </motion.div>
+      </div>
 
       {item && (
         <Dialog open={showDetails} onOpenChange={setShowDetails}>

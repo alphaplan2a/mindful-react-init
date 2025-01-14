@@ -1,20 +1,24 @@
 export const getAvailableStockForSize = (product: any, size: string): number => {
+  if (product.itemgroup_product === 'costumes') {
+    return product.sizes[size] || 0;
+  }
+
   // Map the size to the corresponding property name in the product object
   const sizeMapping: { [key: string]: string } = {
-    'S': 's_size',
-    'M': 'm_size',
-    'L': 'l_size',
-    'XL': 'xl_size',
-    'XXL': 'xxl_size',
-    '3XL': '3xl_size'
+    'S': 's',
+    'M': 'm',
+    'L': 'l',
+    'XL': 'xl',
+    'XXL': 'xxl',
+    '3XL': '3xl'
   };
 
-  // Get the property name for the size (e.g., 'm_size' for size 'M')
+  // Get the property name for the size (e.g., 'm' for size 'M')
   const sizeKey = sizeMapping[size.toUpperCase()];
   
   // Get the stock value from the product object using the size property
-  if (sizeKey && product.sizes && product.sizes[sizeKey.split('_')[0].toLowerCase()]) {
-    return product.sizes[sizeKey.split('_')[0].toLowerCase()];
+  if (sizeKey && product.sizes && product.sizes[sizeKey.toLowerCase()]) {
+    return product.sizes[sizeKey.toLowerCase()];
   }
   
   // If we can't find the size or the stock, return 0

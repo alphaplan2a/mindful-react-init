@@ -68,7 +68,8 @@ const MobileMenu = ({
                       { href: "/univers-cadeaux/packpremuim", title: "Pack Premium", description: "Collection premium" },
                       { href: "/univers-cadeaux/packtrio", title: "Pack Trio", description: "Ensemble de trois pièces" },
                       { href: "/univers-cadeaux/packduo", title: "Pack Duo", description: "Ensemble de deux pièces" },
-                      { href: "/univers-cadeaux/packminiduo", title: "Pack Mini Duo", description: "Petit ensemble duo" }
+                      { href: "/univers-cadeaux/packminiduo", title: "Pack Mini Duo", description: "Petit ensemble duo" },
+                      { href: "/univers-cadeaux/packchemise", title: "Pack Chemise", description: "Pack chemise exclusive" }
                     ]}
                   />
                 </div>
@@ -119,7 +120,8 @@ const MobileMenu = ({
                     title="Outlet"
                     items={[
                       { href: "/category/outlet/homme/costumes", title: "Costume", description: "Costumes en promotion" },
-                      { href: "/category/outlet/homme/blazers", title: "Blazer", description: "Blazers en solde" }
+                      { href: "/category/outlet/homme/blazers", title: "Blazer", description: "Blazers en solde" },
+                      { href: "/category/outlet/femme/chemises", title: "Chemise", description: "Chemises en promotion" }
                     ]}
                   />
                 </div>

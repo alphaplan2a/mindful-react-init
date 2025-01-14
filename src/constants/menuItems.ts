@@ -22,7 +22,7 @@ export const menuItems = [
       { href: "/category/univers-cadeaux/pack-trio", title: "Pack Trio" },
       { href: "/category/univers-cadeaux/pack-duo", title: "Pack Duo" },
       { href: "/category/univers-cadeaux/pack-mini-duo", title: "Pack Mini Duo" },
-      { href: "/category/univers-cadeaux/pack-mono", title: "Pack Mono" },
+      { href: "/category/univers-cadeaux/packchemise", title: "Pack Chemise" },
     ],
   },
   {

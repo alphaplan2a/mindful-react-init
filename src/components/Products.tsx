@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useQuery } from "@tanstack/react-query";
@@ -7,17 +7,18 @@ import ProductCard from "./ProductCard";
 import Categories from "./Categories";
 
 const Products = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
-      align: "center",
+      align: "start",
       skipSnaps: false,
       dragFree: false,
       containScroll: "trimSnaps",
     },
     [
       Autoplay({
-        delay: 4000,
+        delay: 2500,
         stopOnInteraction: false,
         stopOnMouseEnter: true,
       }),
@@ -28,6 +29,14 @@ const Products = () => {
     queryKey: ["products"],
     queryFn: fetchAllProducts,
   });
+
+  // Filter products based on selected category
+  const filteredProducts = React.useMemo(() => {
+    if (!selectedCategory) return products;
+    return products?.filter(
+      (product) => product.itemgroup_product === selectedCategory
+    );
+  }, [products, selectedCategory]);
 
   // Navigation handlers
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
@@ -50,6 +59,19 @@ const Products = () => {
     onSelect();
   }, [emblaApi, onSelect]);
 
+  // Listen for category filter events
+  useEffect(() => {
+    const handleFilterCategory = (event: CustomEvent<{ category: string }>) => {
+      setSelectedCategory(event.detail.category);
+      console.log('Filtering by category:', event.detail.category);
+    };
+
+    window.addEventListener('filterCategory', handleFilterCategory as EventListener);
+    return () => {
+      window.removeEventListener('filterCategory', handleFilterCategory as EventListener);
+    };
+  }, []);
+
   if (error) {
     console.error("Error loading products:", error);
     return <div className="text-center text-red-500">Failed to load products</div>;
@@ -58,9 +80,9 @@ const Products = () => {
   return (
     <div className="products-wrapper">
       <div className="products-container">
-        <h1 className="products-title">Nos produits</h1>
+        <h1 className="products-title">Nouveauté</h1>
         <Categories />
-        <div className="embla" ref={emblaRef}>
+        <div className="embla relative" ref={emblaRef}>
           <div className="embla__container">
             {isLoading
               ? Array.from({ length: 6 }).map((_, index) => (
@@ -68,7 +90,7 @@ const Products = () => {
                     <div className="skeleton-card"></div>
                   </div>
                 ))
-              : products?.map((product) => (
+              : filteredProducts?.map((product) => (
                   <div className="embla__slide" key={product.id}>
                     <ProductCard product={product} />
                   </div>
@@ -82,9 +104,7 @@ const Products = () => {
           onClick={scrollPrev}
           disabled={!prevEnabled}
         >
-          <div>
-         {'<'}
-         </div>
+          <div className="arrow-content">{'<'}</div>
         </button>
         <button
           className={`embla__button embla__button--next ${
@@ -93,12 +113,11 @@ const Products = () => {
           onClick={scrollNext}
           disabled={!nextEnabled}
         >
-          <div>
-           {'>'}
-           </div>
+          <div className="arrow-content">{'>'}</div>
         </button>
       </div>
-      <style jsx>{`
+      <style>
+        {`
         .products-wrapper {
           width: 100%;
           overflow: hidden;
@@ -109,6 +128,7 @@ const Products = () => {
           margin: 0 auto;
           padding: 2rem 1rem;
           max-width: 1200px;
+          position: relative;
         }
         .products-title {
           font-size: 2rem;
@@ -128,7 +148,7 @@ const Products = () => {
           transition: transform 0.3s ease;
         }
         .embla__slide {
-          min-width: 300px;
+          min-width: calc(100% / 5); /* Show 4 slides */
           flex: 0 0 auto;
           padding: 1rem;
           display: flex;
@@ -143,53 +163,35 @@ const Products = () => {
           animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
-          0% {
-            background-color: #e5e7eb;
-          }
-          50% {
-            background-color: #d1d5db;
-          }
-          100% {
-            background-color: #e5e7eb;
-          }
+          0% { background-color: #e5e7eb; }
+          50% { background-color: #d1d5db; }
+          100% { background-color: #e5e7eb; }
         }
- .embla__button {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -40%); /* Fix centering */
-    background-color: #700100;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 35px; /* Increased width and height for clarity */
-    height: 35px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 3.5rem; /* Adjust font size for the arrows */
-    font-weight: bold; /* Ensure arrows are prominent */
-    cursor: pointer;
-    z-index: 10;
-    transition: background-color 0.3s ease;
-  }
-  .embla__button--prev {
-    left: 2rem;
-  }
-   .embla__button div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  font-size: 3.25rem;
-  margin: 10px; 
-  top: 4px; 
-  right: 3px;
-  bottom: 100px;
-}
-
-  .embla__button--next {
-    right: 2rem;
-  }
+        .embla__button {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background-color: #700100;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 42px;
+          height: 42px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 2rem;
+          font-weight: bold;
+          cursor: pointer;
+          z-index: 10;
+          transition: background-color 0.3s ease;
+        }
+        .embla__button--prev {
+          left: 0;
+        }
+        .embla__button--next {
+          right: 0;
+        }
         .embla__button:hover {
           background-color: #000;
         }
@@ -197,7 +199,21 @@ const Products = () => {
           background-color: #d1d5db;
           cursor: not-allowed;
         }
-      `}</style>
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+          .embla__slide {
+            min-width: calc(100% / 4); /* Show 2 slides */
+          }
+        }
+
+        @media (max-width: 480px) {
+          .embla__slide {
+            min-width: 100%; /* Show 1 slide */
+          }
+        }
+        `}
+      </style>
     </div>
   );
 };

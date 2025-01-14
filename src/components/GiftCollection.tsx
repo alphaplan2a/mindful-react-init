@@ -11,7 +11,13 @@ const GiftCollection = () => {
 
   return (
     <section className="bg-[#F9FAFB] py-10 font-['WomanFontRegular']">
-      <div className="container mx-auto p-5 flex flex-wrap justify-between">
+      <div
+        className="container mx-auto flex flex-wrap justify-center sm:justify-between gap-4"
+        style={{
+          padding: 0,
+          width: "95vw",
+        }}
+      >
         <div className="w-full text-center mb-5">
           <h2 className="text-[#8A2B3B] text-4xl">Le monde fiori</h2>
         </div>
@@ -19,7 +25,13 @@ const GiftCollection = () => {
           <a
             key={index}
             href={item.href}
-            className="relative flex-1 m-2 min-w-[250px] max-w-[250] h-[430px] bg-white shadow-lg overflow-hidden group"
+            className="relative w-[calc(50%-8px)] sm:w-[calc((95%-32px)/5)] last:sm:w-[calc((95%-32px)/5)] last:w-[calc(50%-8px)]"
+            style={{
+              height: "430px",
+              background: "#fff",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              overflow: "hidden",
+            }}
           >
             <img
               src={item.src}

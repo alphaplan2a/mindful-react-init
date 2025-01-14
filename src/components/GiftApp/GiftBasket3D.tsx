@@ -31,7 +31,6 @@ const GiftBasket3D = ({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [targetContainer, setTargetContainer] = useState<number>(0);
   const [particlePosition, setParticlePosition] = useState<{ x: number; y: number } | null>(null);
-  const [animationTrigger, setAnimationTrigger] = useState<'initial' | 'itemAdded'>('initial');
 
   const handleDrop = (containerId: number) => (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -53,11 +52,6 @@ const GiftBasket3D = ({
     }, 1000);
   };
 
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setShowProductModal(true);
-  };
-
   const handleConfirm = () => {
     if (droppedItem && selectedSize && onItemDrop) {
       onItemDrop(droppedItem, selectedSize, personalization);
@@ -65,7 +59,6 @@ const GiftBasket3D = ({
       setSelectedSize('');
       setPersonalization('');
       setDroppedItem(null);
-      setAnimationTrigger('itemAdded');
       toast({
         title: "Article ajouté au pack",
         description: "L'article a été ajouté avec succès à votre pack cadeau",
@@ -79,10 +72,15 @@ const GiftBasket3D = ({
     }
   };
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setShowProductModal(true);
+  };
+
   return (
     <div className="space-y-2">
       <div className="p-6 bg-black/95 border border-gray-800 rounded-xl shadow-2xl relative">
-        <BoxRevealAnimation containerCount={containerCount} trigger={animationTrigger} />
+        <BoxRevealAnimation containerCount={containerCount} />
         
         {containerCount === 3 ? (
           <div className="flex gap-3">

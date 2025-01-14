@@ -11,12 +11,15 @@ import { ShoppingBag } from 'lucide-react';
 import BoxSelectionDialog from './BoxSelectionDialog';
 import { getAvailableStockForSize } from '@/utils/stockValidation';
 import GiftBoxSelection from './GiftBoxSelection';
+import SizeSelector from './SizeSelector';
+import { calculateDiscountedPrice } from '@/utils/priceCalculations';
 
 interface ProductDetailContainerProps {
   product: Product;
+  onProductAdded?: (productName: string) => void;
 }
 
-const ProductDetailContainer = ({ product }: ProductDetailContainerProps) => {
+const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContainerProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -83,21 +86,29 @@ const ProductDetailContainer = ({ product }: ProductDetailContainerProps) => {
       return;
     }
 
+    // Calculate the discounted price if a discount exists
+    const hasDiscount = product.discount_product !== "" && 
+                       !isNaN(parseFloat(product.discount_product)) && 
+                       parseFloat(product.discount_product) > 0;
+    
+    const finalPrice = hasDiscount 
+      ? calculateDiscountedPrice(product.price, product.discount_product)
+      : product.price;
+
     addToCart({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: finalPrice, // Use the discounted price here
+      originalPrice: hasDiscount ? product.price : undefined, // Store original price for reference
       quantity: quantity,
       image: product.image,
       size: selectedSize,
-      personalization: personalizationText,
+      personalization: product.category_product === "homme" && product.itemgroup_product === "costumes" ? "" : personalizationText,
       withBox: withBox,
+      discount_product: product.discount_product,
     });
 
-    toast({
-      title: "Produit ajouté au panier",
-      description: `${quantity} x ${product.name} (Taille: ${selectedSize})`,
-    });
+    onProductAdded?.(product.name);
   };
 
   const handleInitialAddToCart = () => {
@@ -112,12 +123,15 @@ const ProductDetailContainer = ({ product }: ProductDetailContainerProps) => {
     }
   };
 
-  // Filter out sizes with 0 quantity
-  const availableSizes = product.sizes ? 
-    Object.entries(product.sizes)
-      .filter(([_, stock]) => stock > 0)
-      .map(([size]) => size.toUpperCase()) 
-    : [];
+  const availableSizes = product.itemgroup_product === 'costumes' 
+    ? Object.entries(product.sizes)
+        .filter(([key, stock]) => ['48', '50', '52', '54', '56', '58'].includes(key) && stock > 0)
+        .map(([size]) => size)
+    : Object.entries(product.sizes)
+        .filter(([key, stock]) => ['s', 'm', 'l', 'xl', 'xxl', '3xl'].includes(key.toLowerCase()) && stock > 0)
+        .map(([size]) => size.toUpperCase());
+
+  const showPersonalization = !(product.category_product === "homme" && product.itemgroup_product === "costumes");
 
   return (
     <div className="grid lg:grid-cols-2 gap-12">
@@ -136,14 +150,18 @@ const ProductDetailContainer = ({ product }: ProductDetailContainerProps) => {
           name={product.name}
           description={product.description}
           price={product.price}
+          discount={product.discount_product}
         />
 
-        <div className="mt-6">
-          <PersonalizationInput
-            itemId={product.id}
-            onUpdate={setPersonalizationText}
-          />
-        </div>
+        {product.category_product !== "homme" || product.itemgroup_product !== "costumes" ? (
+          <div className="mt-6">
+            <PersonalizationInput
+              itemId={product.id}
+              onUpdate={setPersonalizationText}
+            />
+          </div>
+        ) : null}
+        
         <div className="h-px bg-gray-200" />
 
         <div className="space-y-6">
@@ -156,24 +174,14 @@ const ProductDetailContainer = ({ product }: ProductDetailContainerProps) => {
                 Guide des tailles
               </button>
             </div>
-            <div className="grid grid-cols-7 gap-1">
-              {availableSizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => {
-                    setSelectedSize(size);
-                    setQuantity(1);
-                  }}
-                  className={`py-2 text-sm font-medium rounded-md transition-all duration-200
-                    ${selectedSize === size
-                      ? 'bg-[#700100] text-white shadow-md transform scale-105' 
-                      : 'bg-white border border-gray-200 text-gray-900 hover:border-[#700100] hover:bg-gray-50'
-                    }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
+            <SizeSelector
+              selectedSize={selectedSize}
+              sizes={Object.entries(product.sizes)
+                .filter(([_, stock]) => stock > 0)
+                .map(([size]) => size)}
+              onSizeSelect={setSelectedSize}
+              isCostume={product.itemgroup_product === 'costumes'}
+            />
           </div>
 
           <div className="space-y-2">
@@ -182,23 +190,22 @@ const ProductDetailContainer = ({ product }: ProductDetailContainerProps) => {
               <span className="text-sm text-gray-600">Stock total: {product.quantity}</span>
             </div>
             <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1 w-fit">
-  <button
-    onClick={() => handleQuantityChange(quantity - 1)}
-    className="p-1 rounded-md text-black text-[38px]"
-    disabled={quantity <= 1}
-  >
-    -
-  </button>
-  <span className="w-8 text-center font-medium text-gray-900">{quantity}</span>
-  <button
-    onClick={() => handleQuantityChange(quantity + 1)}
-    className="p-1 rounded-md text-black text-[38px]"
-    disabled={!selectedSize}
-  >
-    +
-  </button>
-</div>
-
+              <button
+                onClick={() => handleQuantityChange(quantity - 1)}
+                className="p-1 rounded-md text-black text-[38px]"
+                disabled={quantity <= 1}
+              >
+                -
+              </button>
+              <span className="w-8 text-center font-medium text-gray-900">{quantity}</span>
+              <button
+                onClick={() => handleQuantityChange(quantity + 1)}
+                className="p-1 rounded-md text-black text-[38px]"
+                disabled={!selectedSize}
+              >
+                +
+              </button>
+            </div>
           </div>
 
           {product.itemgroup_product === 'chemises' && (

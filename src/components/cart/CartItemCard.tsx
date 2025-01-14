@@ -13,6 +13,7 @@ interface CartItemCardProps {
 const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) => {
   const packType = sessionStorage.getItem('selectedPackType') || 'aucun';
   const hasDiscount = item.discount_product && item.discount_product !== "" && !isNaN(parseFloat(item.discount_product));
+  const isFromPack = item.fromPack && packType !== 'aucun';
   
   return (
     <motion.div 
@@ -32,6 +33,7 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
           <div className="flex flex-wrap items-start gap-2 mb-2">
             <h3 className="text-base sm:text-lg font-serif text-[#1A1F2C] hover:text-[#700100] transition-colors cursor-pointer truncate max-w-full">
               {item.name}
+              {isFromPack && ` (${packType})`}
             </h3>
             {hasDiscount && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#700100] text-white">
@@ -40,7 +42,7 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
               </span>
             )}
             <div className="flex flex-wrap gap-1">
-              {packType !== 'aucun' && (
+              {isFromPack && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#700100]/10 text-[#700100] whitespace-nowrap">
                   <Package size={12} />
                   {packType}

@@ -1,30 +1,37 @@
 import React from 'react';
-import FloatingCard from './FloatingCard';
+import { motion } from 'framer-motion';
+
+const FloatingCard = ({ title, description, delay = 0 }) => {
+  return (
+    <div 
+      className="floating-card glass p-8 rounded-2xl w-full max-w-sm mx-auto animate-fadeIn opacity-0"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <h3 className="text-xl font-semibold mb-4">{title}</h3>
+      <p className="text-soft-600">{description}</p>
+    </div>
+  );
+};
 
 const ContentSection = () => {
   return (
-    <section className="py-24 px-6" id="features">
-      <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-soft-600 text-sm tracking-wider uppercase">Features</span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2">Crafted with precision</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="grid md:grid-cols-3 gap-8">
           <FloatingCard
-            title="Thoughtful Design"
-            description="Every detail is carefully considered to create a seamless user experience."
+            title="Innovation"
+            description="Découvrez nos dernières innovations en matière de mode masculine."
+            delay={0}
+          />
+          <FloatingCard
+            title="Qualité"
+            description="Des matériaux premium sélectionnés avec soin pour votre confort."
             delay={200}
           />
           <FloatingCard
-            title="Intuitive Interface"
-            description="Simple yet powerful interactions that feel natural and effortless."
+            title="Style"
+            description="Un style unique qui vous distingue en toute occasion."
             delay={400}
-          />
-          <FloatingCard
-            title="Premium Quality"
-            description="Built with the highest standards of quality and attention to detail."
-            delay={600}
           />
         </div>
       </div>

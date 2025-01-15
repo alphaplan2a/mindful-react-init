@@ -4,16 +4,18 @@ import { Product } from '@/types/product';
 
 interface ProductGridProps {
   products: Product[];
-  onProductClick: (product: Product) => void;
+  onProductSelect: (product: Product) => void;
   selectedProducts?: Product[];
   onDrop?: (e: React.DragEvent<HTMLDivElement>, product: Product) => void;
+  onDragStart?: (event: React.DragEvent<HTMLDivElement>, product: Product) => void;
 }
 
 const ProductGrid = ({ 
   products, 
-  onProductClick, 
+  onProductSelect, 
   selectedProducts = [],
-  onDrop 
+  onDrop,
+  onDragStart 
 }: ProductGridProps) => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, product: Product) => {
     if (onDrop) {
@@ -36,9 +38,11 @@ const ProductGrid = ({
               ? 'border-[#700100] bg-[#700100]/5'
               : 'border-gray-200 hover:border-[#700100] hover:shadow-md'
             }`}
-          onClick={() => onProductClick(product)}
+          onClick={() => onProductSelect(product)}
           onDrop={(e) => handleDrop(e, product)}
           onDragOver={handleDragOver}
+          onDragStart={(e) => onDragStart && onDragStart(e, product)}
+          draggable={true}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}

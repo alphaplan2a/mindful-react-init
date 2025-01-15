@@ -7,14 +7,12 @@ import RelatedProducts from '@/components/product-detail/RelatedProducts';
 import ProductDetailLayout from '@/components/product-detail/ProductDetailLayout';
 import ProductDetailContainer from '@/components/product-detail/ProductDetailContainer';
 import CheckoutConfirmationModal from '@/components/modals/CheckoutConfirmationModal';
-import GiftBoxSelection from '@/components/product-detail/GiftBoxSelection';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [addedProductName, setAddedProductName] = useState('');
-  const [selectedBoxOption, setSelectedBoxOption] = useState<boolean | null>(null);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
@@ -62,8 +60,6 @@ const ProductDetailPage = () => {
       <ProductDetailContainer 
         product={product} 
         onProductAdded={handleProductAdded}
-        selectedBoxOption={selectedBoxOption}
-        setSelectedBoxOption={setSelectedBoxOption}
       />
       
       {relatedProductsList.length > 0 && (

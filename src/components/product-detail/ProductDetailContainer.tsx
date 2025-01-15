@@ -9,7 +9,6 @@ import BoxSelectionDialog from './BoxSelectionDialog';
 import SizeSelector from './SizeSelector';
 import ProductQuantitySelector from './ProductQuantitySelector';
 import ProductActions from './ProductActions';
-import GiftBoxSelection from './GiftBoxSelection';
 import { getStockForSize } from '@/utils/stockManagement';
 import { calculateFinalPrice } from '@/utils/priceCalculations';
 import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/personalizationConfig';
@@ -149,13 +148,6 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
             selectedSize={selectedSize}
             product={product}
           />
-
-          {product.itemgroup_product === 'chemises' && (
-            <GiftBoxSelection
-              selectedBoxOption={selectedBoxOption}
-              setSelectedBoxOption={setSelectedBoxOption}
-            />
-          )}
 
           <ProductActions
             handleInitialAddToCart={handleInitialAddToCart}

@@ -53,44 +53,17 @@ interface OrderSubmission {
 }
 
 const sendOrderConfirmationEmail = async (orderData: OrderSubmission): Promise<void> => {
-  console.log('Preparing email data for submission:', orderData);
+  console.log('Sending order confirmation email with data:', orderData);
   
-  // Format the data according to the expected structure
-  const emailData = {
-    user_details: orderData.user_details,
-    order_id: orderData.order_id,
-    items: orderData.items.map(item => ({
-      name: item.name,
-      size: item.size,
-      color: item.color,
-      quantity: item.quantity,
-      total_price: item.total_price.toString(),
-      personalization: item.personalization || 'No',
-      pack: item.pack !== 'aucun' ? 'Yes' : 'No',
-      box: item.box === 'Avec box' ? 'Yes' : 'No'
-    })),
-    price_details: {
-      subtotal: orderData.price_details.subtotal.toString(),
-      shipping_cost: orderData.price_details.shipping_cost.toString(),
-      newsletter_discount_amount: orderData.price_details.newsletter_discount_amount.toString(),
-      final_total: orderData.price_details.final_total.toString()
-    },
-    payment: {
-      method: orderData.payment.method === 'card' ? 'Credit Card' : 'Cash',
-      status: orderData.payment.status === 'completed' ? 'Paid' : 'Pending'
-    }
-  };
-
-  console.log('Formatted email data:', JSON.stringify(emailData, null, 2));
-
   try {
-    const response = await fetch('https://www.fioriforyou.com/testsmtp.php', {
+    const response = await fetch('https://fioriforyou.com/testsmtp.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify(emailData),
+      mode: 'cors',
+      body: JSON.stringify(orderData),
     });
 
     if (!response.ok) {
@@ -116,6 +89,7 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
       ...item,
       pack: item.pack || 'aucun',
       size: item.size || '-',
+      // Only include personalization if it exists, otherwise use '-'
       personalization: item.personalization && item.personalization !== '' ? item.personalization : '-',
       box: item.box || 'Sans box'
     }));
@@ -145,9 +119,14 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
     const orderResult = await orderResponse.json();
     console.log('Order submission successful:', orderResult);
 
-    // Send confirmation email with properly formatted data
-    await sendOrderConfirmationEmail(orderData);
-    console.log('Email confirmation sent successfully');
+    // If order submission is successful, send confirmation email
+    try {
+      await sendOrderConfirmationEmail(orderData);
+      console.log('Email confirmation sent successfully');
+    } catch (emailError) {
+      // Log email error but don't fail the order submission
+      console.error('Email confirmation failed but order was submitted:', emailError);
+    }
 
     return orderResult;
   } catch (error) {

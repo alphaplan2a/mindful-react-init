@@ -1,8 +1,11 @@
 import React from 'react';
-import { MinusCircle, PlusCircle, Trash2, Tag, Package, Gift } from 'lucide-react';
+import { MinusCircle, PlusCircle, Trash2, Tag, Package, Gift, PenLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CartItem } from './CartProvider';
-import PersonalizationInput from './PersonalizationInput';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { savePersonalization } from '@/utils/personalizationStorage';
 
 interface CartItemCardProps {
   item: CartItem;
@@ -11,9 +14,17 @@ interface CartItemCardProps {
 }
 
 const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) => {
+  const [isPersonalizationOpen, setIsPersonalizationOpen] = React.useState(false);
+  const [personalizationText, setPersonalizationText] = React.useState(item.personalization || '');
   const packType = sessionStorage.getItem('selectedPackType') || 'aucun';
   const hasDiscount = item.discount_product && item.discount_product !== "" && !isNaN(parseFloat(item.discount_product));
   const isFromPack = item.fromPack && packType !== 'aucun';
+
+  const handleSavePersonalization = () => {
+    savePersonalization(item.id, personalizationText);
+    item.personalization = personalizationText;
+    setIsPersonalizationOpen(false);
+  };
   
   return (
     <motion.div 
@@ -72,10 +83,17 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
             </div>
           )}
 
-          <PersonalizationInput
-            itemId={item.id}
-            onUpdate={() => {}}
-          />
+          {item.personalization && (
+            <div className="mb-2 bg-gray-50 p-3 rounded-lg relative group cursor-pointer" onClick={() => setIsPersonalizationOpen(true)}>
+              <p className="text-sm text-gray-600 pr-8">
+                Personnalisation: {item.personalization}
+              </p>
+              <PenLine 
+                size={16} 
+                className="absolute right-2 top-2 text-[#700100] opacity-0 group-hover:opacity-100 transition-opacity"
+              />
+            </div>
+          )}
 
           <div className="flex items-center justify-between sm:justify-start gap-4 mt-3">
             <div className="flex items-center bg-[#F1F0FB] rounded-full px-3 py-1">
@@ -121,6 +139,45 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
           </div>
         </div>
       </div>
+
+      <Dialog open={isPersonalizationOpen} onOpenChange={setIsPersonalizationOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white shadow-xl border border-gray-100">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif text-[#700100] mb-4 text-center">
+              Modifier la personnalisation
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 p-6 bg-white">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Votre message personnalisé
+              </label>
+              <Textarea
+                placeholder="Ajoutez votre texte personnalisé ici..."
+                value={personalizationText}
+                onChange={(e) => setPersonalizationText(e.target.value)}
+                className="min-h-[120px] p-4 text-gray-800 bg-gray-50 border-2 border-gray-200 focus:border-[#700100] focus:ring-[#700100] rounded-lg resize-none transition-all duration-300"
+              />
+            </div>
+            
+            <div className="flex gap-4 pt-4">
+              <Button
+                onClick={() => setIsPersonalizationOpen(false)}
+                variant="outline"
+                className="flex-1 border-2 border-gray-300 bg-[#fff] hover:bg-[#590000] text-gray-700 transition-all duration-300"
+              >
+                Annuler
+              </Button>
+              <Button
+                onClick={handleSavePersonalization}
+                className="flex-1 bg-[#700100] hover:bg-[#590000] text-white transition-all duration-300"
+              >
+                Enregistrer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };

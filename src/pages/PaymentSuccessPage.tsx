@@ -18,6 +18,7 @@ const PaymentSuccessPage = () => {
   useEffect(() => {
     const handlePaymentSuccess = async () => {
       try {
+        console.log('Starting payment success handler...');
         const pendingOrderString = sessionStorage.getItem('pendingOrder');
         if (!pendingOrderString) {
           console.error('No pending order found');
@@ -40,124 +41,62 @@ const PaymentSuccessPage = () => {
         if (!finalUserDetails) {
           const errorMessage = 'User details not found. Please complete the checkout process again.';
           console.error(errorMessage);
-          
           toast({
             title: "Error - Missing User Details",
             description: errorMessage,
             duration: Infinity,
             variant: "destructive"
           });
-          
-          setTimeout(() => {
-            navigate('/cart');
-          }, 3000);
-          
+          setTimeout(() => navigate('/cart'), 3000);
           return;
         }
 
         console.log('Retrieved user details:', finalUserDetails);
-        
         await updateProductStock(pendingOrder.cartItems);
 
-        const packType = sessionStorage.getItem('selectedPackType') || null;
-        console.log('Pack type:', packType);
+        // Get the current pack type from session storage
+        const currentPackType = sessionStorage.getItem('selectedPackType');
+        console.log('Current pack type:', currentPackType);
 
-        // Format items with correct price calculations and pack information
-        const formattedItems = pendingOrder.cartItems.flatMap((item: any) => {
-          console.log('Processing item price calculation:', {
-            id: item.id,
-            price: item.price,
-            quantity: item.quantity,
-            withBox: item.withBox,
-            discount_product: item.discount_product,
-            fromPack: item.fromPack,
-            packType: packType
-          });
+        // Format items with correct pack information
+        const formattedItems = pendingOrder.cartItems.map((item: any) => {
+          console.log('Processing item:', item);
 
           // Calculate discounted price if applicable
           const itemPrice = item.discount_product ? 
             item.price * (1 - parseFloat(item.discount_product) / 100) : 
             item.price;
 
-          // Format item name with pack/box information
-          let formattedName = item.name;
-          if (packType && item.fromPack) {
-            formattedName += ` (${packType})`;
-          }
-          if (item.withBox) {
-            formattedName += ' (+Box)';
-          }
-
           // Format image URL
           const imageUrl = item.image.startsWith('http') ? 
             item.image : 
             `https://respizenmedical.com/fiori/${item.image}`;
 
-          const items = [{
+          // Check if the item is a pack charge
+          const isPackCharge = item.type_product === "Pack";
+          
+          // Determine if item is from pack and which pack
+          const packInfo = isPackCharge ? "aucun" : 
+                          item.fromPack ? currentPackType || "aucun" : "aucun";
+
+          const formattedItem = {
             item_id: item.id.toString(),
             quantity: item.quantity,
             price: itemPrice,
             total_price: itemPrice * item.quantity,
-            name: formattedName,
+            name: item.name,
             size: item.size || '-',
             color: item.color || '-',
             personalization: item.personalization || '-',
-            pack: packType || 'aucun',
+            pack: packInfo,
             box: item.withBox ? 'Avec box' : 'Sans box',
             image: imageUrl
-          }];
-
-          // Add box as a separate item if selected
-          if (item.withBox) {
-            items.push({
-              item_id: `box-${item.id}-${Date.now()}`,
-              quantity: item.quantity,
-              price: 30,
-              total_price: 30 * item.quantity,
-              name: `Boîte cadeau pour ${item.name}`,
-              size: '-',
-              color: '-',
-              personalization: '-',
-              pack: packType || 'aucun',
-              box: 'Box article',
-              image: '/BoxToSelected.png'
-            });
-          }
-
-          return items;
-        });
-
-        // Add pack as a separate item if it exists
-        if (packType) {
-          const packPrices = {
-            'Pack Prestige': 50,
-            'Pack Premium': 30,
-            'Pack Trio': 20,
-            'Pack Duo': 20,
-            'Pack Mini Duo': 0,
-            'Pack Chemise': 10
           };
 
-          const packPrice = packPrices[packType as keyof typeof packPrices] || 0;
-          
-          if (packPrice > 0) {
-            formattedItems.push({
-              item_id: `pack-${Date.now()}`,
-              quantity: 1,
-              price: packPrice,
-              total_price: packPrice,
-              name: `${packType} - Frais de packaging`,
-              size: '-',
-              color: '-',
-              personalization: '-',
-              pack: packType,
-              box: '-',
-              image: '/Menu/Sur musure .png'
-            });
-          }
-        }
+          console.log('Formatted item:', formattedItem);
+          return formattedItem;
+        });
 
-        // Calculate order totals using CartProvider's calculateTotal
         const orderData = {
           order_id: pendingOrder.orderId,
           user_details: {
@@ -191,7 +130,7 @@ const PaymentSuccessPage = () => {
           }
         };
 
-        console.log('Submitting order data to API with corrected prices:', JSON.stringify(orderData, null, 2));
+        console.log('Submitting order data to API:', JSON.stringify(orderData, null, 2));
 
         const isTestMode = pendingOrder.payUrl === 'test-mode';
         
@@ -229,6 +168,7 @@ const PaymentSuccessPage = () => {
           });
         }
         
+        // Clear session storage and cart
         sessionStorage.removeItem('pendingOrder');
         sessionStorage.removeItem('selectedPackType');
         clearCart();

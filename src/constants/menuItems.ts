@@ -33,8 +33,8 @@ export const menuItems = [
       { href: "/category/pret-a-porter/homme/costumes", title: "Costumes" },
       { href: "/category/pret-a-porter/homme/blazers", title: "Blazers" },
       { href: "/category/pret-a-porter/homme/chemises", title: "Chemises" },
-      { href: "/category/pret-a-porter/homme/pulls", title: "Pulls" },
       { href: "/category/pret-a-porter/homme/pantalons", title: "Pantalons" },
+      { href: "/category/pret-a-porter/homme/pollo", title: "Polo" },
     ],
   },
   {
@@ -58,5 +58,15 @@ export const menuItems = [
     title: "Outlet",
     icon: ShoppingBag,
     link: "/category/outlet",
+    subItems: [
+      { href: "/category/outlet/homme/costumes", title: "Costumes" },
+      { href: "/category/outlet/homme/blazers", title: "Blazers" },
+      { href: "/category/outlet/homme/chemises", title: "Chemises" },
+      { href: "/category/outlet/homme/pantalons", title: "Pantalons" },
+      { href: "/category/outlet/homme/pollo", title: "Polo" },
+      { href: "/category/outlet/femme/chemises", title: "Chemises Femme" },
+      { href: "/category/outlet/femme/robes", title: "Robes" },
+      { href: "/category/outlet/femme/vestes", title: "Vestes/Manteaux" },
+    ],
   },
 ];

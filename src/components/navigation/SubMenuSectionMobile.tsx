@@ -10,14 +10,13 @@ interface SubMenuSectionProps {
   }>;
 }
 
-const ListItem = ({ href, title, description }: { href: string; title: string; description: string }) => (
-  <li className="text-left">
+const ListItem = ({ href, title }: { href: string; title: string; description: string }) => (
+  <li>
     <Link 
       to={href} 
-      className="block py-2 px-4 rounded-lg hover:bg-white/10 transition-all duration-300"
+      className="block py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 active:scale-95"
     >
-      <span className="block text-white text-base font-medium">{title}</span>
-      <span className="block text-white/70 text-sm mt-0.5">{description}</span>
+      <span className="block text-white text-[15px] font-medium tracking-wide">{title}</span>
     </Link>
   </li>
 );
@@ -25,8 +24,8 @@ const ListItem = ({ href, title, description }: { href: string; title: string; d
 const SubMenuSectionMobile = ({ title, items }: SubMenuSectionProps) => {
   return (
     <div className="py-3 px-4">
-      <h4 className="text-xl font-medium mb-3 text-white/90">{title}</h4>
-      <ul className="space-y-2"> 
+      <h4 className="text-xl font-medium mb-4 text-white/90 border-b border-white/10 pb-2">{title}</h4>
+      <ul className="space-y-1"> 
         {items.map((item, index) => (
           <ListItem 
             key={`${item.href}-${index}`}

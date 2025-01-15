@@ -68,8 +68,7 @@ const MobileMenu = ({
                       { href: "/univers-cadeaux/packpremuim", title: "Pack Premium", description: "Collection premium" },
                       { href: "/univers-cadeaux/packtrio", title: "Pack Trio", description: "Ensemble de trois pièces" },
                       { href: "/univers-cadeaux/packduo", title: "Pack Duo", description: "Ensemble de deux pièces" },
-                      { href: "/univers-cadeaux/packminiduo", title: "Pack Mini Duo", description: "Petit ensemble duo" },
-                      { href: "/univers-cadeaux/packchemise", title: "Pack Chemise", description: "Pack chemise exclusive" }
+                      { href: "/univers-cadeaux/packminiduo", title: "Pack Mini Duo", description: "Petit ensemble duo" }
                     ]}
                   />
                 </div>
@@ -106,27 +105,23 @@ const MobileMenu = ({
               </li>
 
               <li className="text-white/90">
-                <Link
-                  to="/sur-mesure"
-                  className="block py-3 px-4 text-lg text-white hover:text-white/80 transition-colors duration-300 hover:bg-white/5 rounded-lg"
-                >
-                  Le sur mesure
-                </Link>
-              </li>
-
-              <li className="text-white/90">
                 <div className="group">
                   <SubMenuSectionMobile
                     title="Outlet"
                     items={[
-                      { href: "/category/outlet/homme/costumes", title: "Costume", description: "Costumes en promotion" },
-                      { href: "/category/outlet/homme/blazers", title: "Blazer", description: "Blazers en solde" },
-                      { href: "/category/outlet/femme/chemises", title: "Chemise", description: "Chemises en promotion" }
+                      { href: "/category/outlet/homme/costumes", title: "Costumes", description: "Costumes en promotion" },
+                      { href: "/category/outlet/homme/blazers", title: "Blazers", description: "Blazers en solde" },
+                      { href: "/category/outlet/homme/chemises", title: "Chemises", description: "Chemises en promotion" },
+                      { href: "/category/outlet/homme/pantalons", title: "Pantalons", description: "Pantalons en solde" },
+                      { href: "/category/outlet/homme/pollo", title: "Polo", description: "Polos en promotion" },
+                      { href: "/category/outlet/femme/chemises", title: "Chemises Femme", description: "Chemises en promotion" },
+                      { href: "/category/outlet/femme/robes", title: "Robes", description: "Robes en solde" },
+                      { href: "/category/outlet/femme/vestes", title: "Vestes/Manteaux", description: "Vestes et manteaux en promotion" }
                     ]}
                   />
                 </div>
               </li>
-              
+
               <li className="mt-6 border-t border-white/10 pt-6 space-y-4">
                 <button
                   onClick={onStoreClick}

@@ -9,16 +9,17 @@ interface UserDetails {
 }
 
 interface OrderItem {
-  id: number;
-  name: string;
-  price: number;
+  item_id: string;
   quantity: number;
-  image: string;
-  size?: string;
-  color?: string;
-  personalization?: string;
+  price: number;
+  total_price: number;
+  name: string;
+  size: string;
+  color: string;
+  personalization: string;
   pack: string;
-  box?: string;
+  box: string;
+  image: string;
 }
 
 interface PriceDetails {
@@ -83,7 +84,22 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
   console.log('Submitting order with data:', orderData);
 
   try {
-    // First submit the order
+    // Format items to ensure personalization is properly handled
+    const formattedItems = orderData.items.map(item => ({
+      ...item,
+      pack: item.pack || 'aucun',
+      size: item.size || '-',
+      // Only include personalization if it exists, otherwise use '-'
+      personalization: item.personalization && item.personalization !== '' ? item.personalization : '-',
+      box: item.box || 'Sans box'
+    }));
+
+    const formattedOrderData = {
+      ...orderData,
+      items: formattedItems
+    };
+
+    // Submit the order
     const orderResponse = await fetch('https://respizenmedical.com/fiori/submit_all_order.php', {
       method: 'POST',
       headers: {
@@ -91,7 +107,7 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
         'Accept': 'application/json',
       },
       mode: 'cors',
-      body: JSON.stringify(orderData),
+      body: JSON.stringify(formattedOrderData),
     });
 
     if (!orderResponse.ok) {

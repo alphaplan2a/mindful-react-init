@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveCartItems, getCartItems } from '@/utils/cartStorage';
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { calculateDiscountedPrice } from '@/utils/priceCalculations';
+import { toast } from "@/hooks/use-toast";
 
 export interface CartItem {
   id: number;
@@ -14,6 +15,7 @@ export interface CartItem {
   color?: string;
   personalization?: string;
   fromPack?: boolean;
+  pack?: string;
   withBox?: boolean;
   discount_product?: string;
   type_product?: string;
@@ -54,11 +56,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     if (itemsWithPersonalization.length > 0) {
       setCartItems(itemsWithPersonalization);
     }
-
-    const isSubscribed = localStorage.getItem('newsletterSubscribed') === 'true';
-    if (isSubscribed) {
-      setHasNewsletterDiscount(true);
-    }
   }, []);
 
   useEffect(() => {
@@ -72,7 +69,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         i.size === item.size && 
         i.color === item.color && 
         i.personalization === item.personalization &&
-        i.withBox === item.withBox
+        i.withBox === item.withBox &&
+        i.pack === item.pack
       );
       
       if (existingItem) {
@@ -81,28 +79,58 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           i.size === item.size && 
           i.color === item.color && 
           i.personalization === item.personalization &&
-          i.withBox === item.withBox
+          i.withBox === item.withBox &&
+          i.pack === item.pack
             ? { ...i, quantity: i.quantity + item.quantity }
             : i
         );
       }
 
-      // Calculate discounted price if applicable
-      const originalPrice = item.price;
       const finalPrice = item.discount_product 
-        ? calculateDiscountedPrice(originalPrice, item.discount_product)
-        : originalPrice;
+        ? calculateDiscountedPrice(item.price, item.discount_product)
+        : item.price;
 
-      return [...prevItems, { 
-        ...item, 
+      const itemWithPack = {
+        ...item,
         price: finalPrice,
-        originalPrice: item.discount_product ? originalPrice : undefined
-      }];
+        originalPrice: item.discount_product ? item.price : undefined,
+        pack: item.pack || 'aucun',
+        size: item.size || '-',
+        personalization: item.personalization || '-'
+      };
+
+      return [...prevItems, itemWithPack];
     });
   };
 
   const removeFromCart = (id: number) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    const itemToRemove = cartItems.find(item => item.id === id);
+    
+    if (itemToRemove && itemToRemove.fromPack) {
+      const packType = itemToRemove.pack;
+      
+      // Remove all items from the same pack
+      setCartItems(prevItems => {
+        const remainingItems = prevItems.filter(item => 
+          !(item.pack === packType && item.fromPack)
+        );
+        
+        toast({
+          title: "Pack supprimé",
+          description: `Le pack ${packType} a été entièrement supprimé du panier`,
+          style: {
+            backgroundColor: '#700100',
+            color: 'white',
+            border: '1px solid #590000',
+          },
+        });
+        
+        return remainingItems;
+      });
+    } else {
+      // Regular item removal
+      setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    }
   };
 
   const updateQuantity = (id: number, quantity: number) => {
@@ -121,6 +149,21 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const applyNewsletterDiscount = () => {
+    const subscribedEmail = localStorage.getItem('subscribedEmail');
+    if (!subscribedEmail) return;
+
+    const usedDiscountEmails = JSON.parse(localStorage.getItem('usedDiscountEmails') || '[]');
+    
+    if (usedDiscountEmails.includes(subscribedEmail)) {
+      console.log('Email has already used the newsletter discount');
+      setHasNewsletterDiscount(false);
+      localStorage.removeItem('newsletterSubscribed');
+      return;
+    }
+
+    usedDiscountEmails.push(subscribedEmail);
+    localStorage.setItem('usedDiscountEmails', JSON.stringify(usedDiscountEmails));
+    
     setHasNewsletterDiscount(true);
     localStorage.setItem('newsletterSubscribed', 'true');
   };

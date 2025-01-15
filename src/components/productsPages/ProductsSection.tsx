@@ -34,8 +34,22 @@ const ProductsSection = ({ isFromFooter = false }: ProductsSectionProps) => {
     queryKey: ['products', ...pathSegments, isFromFooter],
     queryFn: fetchAllProducts,
     select: (data) => {
+      // If we're on the accessories page (either directly or through category)
+      if (pathSegments.includes('accessoires') && pathSegments.length === 1) {
+        return data.filter((product: Product) => 
+          product.type_product.toLowerCase() === 'accessoires'
+        );
+      }
+
+      // If we have a specific itemgroup (ceintures, cravates, etc.)
+      if (pathSegments.length >= 3) {
+        const itemgroup = pathSegments[2];
+        return data.filter((product: Product) => 
+          normalizeString(product.itemgroup_product) === normalizeString(itemgroup)
+        );
+      }
+
       if (pathSegments[0] === 'univers-cadeaux') {
-        // For univers-cadeaux, return random items from gift universe
         return data
           .filter((product: Product) => 
             normalizeString(product.type_product) === 'univers-cadeaux'
@@ -53,24 +67,8 @@ const ProductsSection = ({ isFromFooter = false }: ProductsSectionProps) => {
           const productType = normalizeString(product.type_product);
           const productCategory = normalizeString(product.category_product);
 
-          // If accessing from footer, only filter by type and category
-          if (isFromFooter) {
-            return normalizedType === productType && 
-                   (category ? normalizedCategory === productCategory : true);
-          }
-
-          // Regular filtering including itemgroup
-          const itemgroup = pathSegments[2];
-          if (itemgroup) {
-            const normalizedItemgroup = normalizeString(itemgroup);
-            const productItemgroup = normalizeString(product.itemgroup_product);
-            return normalizedType === productType && 
-                   normalizedCategory === productCategory && 
-                   normalizedItemgroup === productItemgroup;
-          }
-
           return normalizedType === productType && 
-                 normalizedCategory === productCategory;
+                 (category ? normalizedCategory === productCategory : true);
         }
         return true;
       });

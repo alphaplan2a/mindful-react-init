@@ -8,6 +8,7 @@ import {
 import { Product } from '@/types/product';
 import SizeSelector from '../../product-detail/SizeSelector';
 import PersonalizationButton from '../../product-detail/PersonalizationButton';
+import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/personalizationConfig';
 
 interface AddItemDialogProps {
   open: boolean;
@@ -43,6 +44,8 @@ const AddItemDialog = ({
   };
 
   const availableSizes = getAvailableSizes(droppedItem);
+  const canPersonalize = droppedItem ? canItemBePersonalized(droppedItem.itemgroup_product) : false;
+  const personalizationMessage = droppedItem ? getPersonalizationMessage(droppedItem.itemgroup_product) : undefined;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,11 +67,17 @@ const AddItemDialog = ({
             <p className="text-red-500">Aucune taille disponible pour ce produit</p>
           )}
           
-          <PersonalizationButton
-            productId={droppedItem?.id || 0}
-            onSave={onPersonalizationChange}
-            initialText={personalization}
-          />
+          {canPersonalize ? (
+            <PersonalizationButton
+              productId={droppedItem?.id || 0}
+              onSave={onPersonalizationChange}
+              initialText={personalization}
+            />
+          ) : personalizationMessage && (
+            <div className="text-sm text-gray-500 italic">
+              {personalizationMessage}
+            </div>
+          )}
 
           <button
             onClick={onConfirm}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Product } from '@/types/product';
-import { GripVertical, CheckCircle } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 import { calculateDiscountedPrice } from '@/utils/priceCalculations';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -26,22 +26,13 @@ const ProductGrid = ({ products, onDragStart, onProductSelect }: ProductGridProp
     }
   };
 
-  // If there are no products available, show the completion message
   if (products.length === 0) {
     return (
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center justify-center h-full p-8 bg-white/50 rounded-lg shadow-sm"
-      >
-        <CheckCircle className="w-16 h-16 text-green-500 mb-4" />
-        <h3 className="text-xl font-medium text-gray-900 mb-2 text-center">
-          Pack Complété !
-        </h3>
-        <p className="text-gray-500 text-center">
-          Votre pack est maintenant complet. Vous pouvez procéder à la validation.
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500 text-center italic">
+          Aucun article disponible pour le moment
         </p>
-      </motion.div>
+      </div>
     );
   }
 

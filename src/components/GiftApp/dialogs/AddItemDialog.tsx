@@ -56,6 +56,14 @@ const AddItemDialog = ({
   const canPersonalize = droppedItem ? canItemBePersonalized(droppedItem.itemgroup_product) : false;
   const personalizationMessage = droppedItem ? getPersonalizationMessage(droppedItem.itemgroup_product) : undefined;
   const needsSizeSelection = droppedItem ? !['cravates', 'portefeuilles'].includes(droppedItem.itemgroup_product) : false;
+  const isPortefeuilleOrCravate = droppedItem ? ['portefeuilles', 'cravates'].includes(droppedItem.itemgroup_product) : false;
+
+  const canConfirm = () => {
+    if (isPortefeuilleOrCravate) return true;
+    if (needsSizeSelection && !selectedSize) return false;
+    if (needsSizeSelection && availableSizes.length === 0) return false;
+    return true;
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -83,18 +91,18 @@ const AddItemDialog = ({
             />
           )}
 
-          {needsSizeSelection && availableSizes.length === 0 && !canPersonalize && (
+          {needsSizeSelection && availableSizes.length === 0 && !isPortefeuilleOrCravate && (
             <p className="text-red-500">Aucune taille disponible pour ce produit</p>
           )}
 
           <button
             onClick={onConfirm}
             className={`w-full py-4 rounded-xl text-white font-medium ${
-              (!selectedSize && needsSizeSelection) || (!needsSizeSelection && availableSizes.length === 0)
+              !canConfirm()
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-[#6D0201] hover:bg-[#590000]'
             }`}
-            disabled={(!selectedSize && needsSizeSelection) || (!needsSizeSelection && availableSizes.length === 0)}
+            disabled={!canConfirm()}
           >
             Confirmer
           </button>

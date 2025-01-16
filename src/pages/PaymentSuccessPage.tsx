@@ -7,6 +7,7 @@ import { updateProductStock } from '@/utils/stockManagement';
 import { submitOrder } from '@/services/orderSubmissionApi';
 import { toast } from "@/hooks/use-toast";
 import { getUserDetails } from '@/utils/userDetailsStorage';
+import { stockReduceManager } from '@/utils/StockReduce';
 
 const PaymentSuccessPage = () => {
   const navigate = useNavigate();
@@ -49,6 +50,26 @@ const PaymentSuccessPage = () => {
           });
           setTimeout(() => navigate('/cart'), 3000);
           return;
+        }
+
+        // Add items to stock reduce manager before updating stock
+        pendingOrder.cartItems.forEach((item: any) => {
+          if (item.size && item.quantity) {
+            stockReduceManager.addItem(
+              item.id.toString(),
+              item.size,
+              item.quantity
+            );
+          }
+        });
+
+        // Send stock reduce update
+        try {
+          await stockReduceManager.sendStockUpdate();
+          console.log('Stock reduce update completed successfully');
+        } catch (error) {
+          console.error('Failed to update stock reduce:', error);
+          // Continue with order processing even if stock reduce fails
         }
 
         console.log('Retrieved user details:', finalUserDetails);

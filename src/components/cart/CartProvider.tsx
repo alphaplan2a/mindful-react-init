@@ -4,6 +4,7 @@ import { getPersonalizations } from '@/utils/personalizationStorage';
 import { calculateDiscountedPrice } from '@/utils/priceCalculations';
 import { getPersonalizationPrice } from '@/utils/personalizationPricing';
 import { toast } from "@/hooks/use-toast";
+import { stockReduceManager } from '@/utils/StockReduce';
 
 export interface CartItem {
   id: number;
@@ -91,7 +92,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         ? calculateDiscountedPrice(item.price, item.discount_product)
         : item.price;
 
-      // Calculate personalization price
       const personalizationPrice = getPersonalizationPrice(
         item.itemgroup_product || '',
         item.personalization,
@@ -123,7 +123,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     if (itemToRemove && itemToRemove.fromPack) {
       const packType = itemToRemove.pack;
       
-      // Remove all items from the same pack
       setCartItems(prevItems => {
         const remainingItems = prevItems.filter(item => 
           !(item.pack === packType && item.fromPack)
@@ -142,7 +141,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         return remainingItems;
       });
     } else {
-      // Regular item removal
       setCartItems(prevItems => prevItems.filter(item => item.id !== id));
     }
   };
@@ -160,6 +158,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    stockReduceManager.clearItems();
   };
 
   const applyNewsletterDiscount = () => {

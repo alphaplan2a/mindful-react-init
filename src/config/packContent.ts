@@ -40,7 +40,7 @@ export const packContent: Record<string, PackContent> = {
     title: "Le Pack Duo",
     description: "Discover the Pack Duo, a perfect combination of elegance and practicality. This set includes a premium leather wallet and a stylish belt, all crafted with exceptional quality and attention to detail. Personalize your items with a name or message, making it a truly unique gift.",
     images: [
-      "https://placehold.co/600x400/67000D/ffffff?text=Wallet",
+      "/packduodescri.png",
       "https://placehold.co/600x400/333333/ffffff?text=Belt",
       "https://placehold.co/600x400/67000D/ffffff?text=Keychain"
     ],
@@ -50,7 +50,7 @@ export const packContent: Record<string, PackContent> = {
     title: "Le Pack Mini duo",
     description: "Discover the Pack Mini Duo, a perfect combination of elegance and practicality. This set includes a premium leather wallet and a stylish belt, all crafted with exceptional quality and attention to detail. Personalize your items with a name or message, making it a truly unique gift.",
     images: [
-      "https://placehold.co/600x400/67000D/ffffff?text=Wallet",
+      "/Packduomini2.png",
       "https://placehold.co/600x400/333333/ffffff?text=Belt",
       "https://placehold.co/600x400/67000D/ffffff?text=Keychain"
     ],

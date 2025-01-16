@@ -19,6 +19,9 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
   const packType = sessionStorage.getItem('selectedPackType') || 'aucun';
   const hasDiscount = item.discount_product && item.discount_product !== "" && !isNaN(parseFloat(item.discount_product));
   const isFromPack = item.fromPack && packType !== 'aucun';
+  const hasPersonalization = item.personalization && item.personalization !== '-';
+  const isChemise = item.itemgroup_product === 'chemises';
+  const showPersonalizationCost = hasPersonalization && isChemise && !isFromPack;
 
   const handleSavePersonalization = () => {
     savePersonalization(item.id, personalizationText);
@@ -62,7 +65,13 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
               {item.withBox && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#700100]/10 text-[#700100] whitespace-nowrap">
                   <Gift size={12} />
-                  + Box cadeau
+                  + Box cadeau (30 TND)
+                </span>
+              )}
+              {showPersonalizationCost && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#700100]/10 text-[#700100] whitespace-nowrap">
+                  <PenLine size={12} />
+                  + Personnalisation (30 TND)
                 </span>
               )}
             </div>
@@ -158,6 +167,11 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
                 onChange={(e) => setPersonalizationText(e.target.value)}
                 className="min-h-[120px] p-4 text-gray-800 bg-gray-50 border-2 border-gray-200 focus:border-[#700100] focus:ring-[#700100] rounded-lg resize-none transition-all duration-300"
               />
+              {isChemise && !isFromPack && (
+                <p className="text-sm text-[#700100]">
+                  *La personnalisation sera facturée 30 TND
+                </p>
+              )}
             </div>
             
             <div className="flex gap-4 pt-4">

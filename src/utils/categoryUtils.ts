@@ -4,6 +4,10 @@ type CategoryType = {
   label: string;
   type: string;
   value: string;
+  additionalFilter?: {
+    field: string;
+    value: string;
+  };
 };
 
 export const getAvailableCategories = (
@@ -12,6 +16,46 @@ export const getAvailableCategories = (
   selectedItems: Product[]
 ): CategoryType[] => {
   if (packType === 'Pack Premium') {
+    // First slot must be cravate
+    if (selectedItems.length === 0) {
+      return [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }];
+    }
+    
+    // Second slot must be portefeuille
+    if (selectedItems.length === 1) {
+      return [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }];
+    }
+    
+    // Third slot must be ceinture
+    if (selectedItems.length === 2) {
+      return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
+    }
+    
+    return [];
+  }
+
+  if (packType === 'Pack Prestige') {
+    const chemiseCount = selectedItems.filter(item => item.itemgroup_product === 'chemises').length;
+    const beltCount = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length;
+    const cravateCount = selectedItems.filter(item => item.itemgroup_product === 'cravates').length;
+    const portefeuilleCount = selectedItems.filter(item => item.itemgroup_product === 'portefeuilles').length;
+
+    if (chemiseCount === 0) {
+      return [{ label: 'Chemises Homme', type: 'itemgroup', value: 'chemises', additionalFilter: { field: 'category_product', value: 'homme' } }];
+    }
+    if (chemiseCount === 1 && beltCount === 0) {
+      return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
+    }
+    if (chemiseCount === 1 && beltCount === 1 && cravateCount === 0 && portefeuilleCount === 0) {
+      return [
+        { label: 'Cravates', type: 'itemgroup', value: 'cravates' },
+        { label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }
+      ];
+    }
+    return [];
+  }
+
+  if (packType === 'Pack Trio') {
     // First slot must be portefeuille
     if (selectedItems.length === 0) {
       return [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }];
@@ -22,72 +66,37 @@ export const getAvailableCategories = (
       return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
     }
     
-    // Third slot must be cravate
+    // Third slot must be porte-clés
     if (selectedItems.length === 2) {
-      return [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }];
+      return [{ label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }];
     }
     
     return [];
   }
 
-  if (packType === 'Pack Prestige') {
-    const chemiseCount = selectedItems.filter(item => item.itemgroup_product === 'chemises').length;
-    const beltCount = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length;
-    const cravateCount = selectedItems.filter(item => item.itemgroup_product === 'cravates').length;
-
-    if (chemiseCount === 0) {
-      return [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }];
+  if (packType === 'Pack Duo') {
+    if (selectedItems.length === 0) {
+      return [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }];
     }
-    if (chemiseCount === 1 && beltCount === 0) {
+    
+    if (selectedItems.length === 1) {
       return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
     }
-    if (chemiseCount === 1 && beltCount === 1 && cravateCount === 0) {
-      return [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }];
-    }
+    
     return [];
   }
 
-  if (packType === 'Pack Trio') {
-    // If no items selected yet, show both portefeuilles and ceintures as options
+  if (packType === 'Pack Mini Duo') {
     if (selectedItems.length === 0) {
-      return [
-        { label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' },
-        { label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }
-      ];
+      return [{ label: 'Porte-cartes', type: 'itemgroup', value: 'porte-cartes' }];
     }
-
-    // If first item is selected, only show accessoires for the second slot
+    
     if (selectedItems.length === 1) {
-      return [{ label: 'Accessoires', type: 'type', value: 'accessoires' }];
+      return [{ label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }];
     }
-
+    
     return [];
   }
 
-  const categories = {
-    'Pack Duo': [
-      [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }],
-      [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }]
-    ],
-    'Pack Mini Duo': [
-      [{ label: 'Porte-cartes', type: 'itemgroup', value: 'porte-cartes' }],
-      [{ label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }]
-    ]
-  };
-
-  const singleCategories = {
-    'Pack Chemise': [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }],
-    'Pack Ceinture': [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
-    'Pack Cravatte': [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }],
-    'Pack Malette': [{ label: 'Mallettes', type: 'itemgroup', value: 'mallettes' }]
-  };
-
-  if (singleCategories[packType as keyof typeof singleCategories]) {
-    return singleCategories[packType as keyof typeof singleCategories];
-  }
-
-  const packCategories = categories[packType as keyof typeof categories];
-  if (!packCategories) return [];
-
-  return packCategories[selectedContainerIndex] || [];
+  return [];
 };

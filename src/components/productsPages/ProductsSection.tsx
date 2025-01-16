@@ -34,21 +34,7 @@ const ProductsSection = ({ isFromFooter = false }: ProductsSectionProps) => {
     queryKey: ['products', ...pathSegments, isFromFooter],
     queryFn: fetchAllProducts,
     select: (data) => {
-      // If we're on the accessories page (either directly or through category)
-      if (pathSegments.includes('accessoires') && pathSegments.length === 1) {
-        return data.filter((product: Product) => 
-          product.type_product.toLowerCase() === 'accessoires'
-        );
-      }
-
-      // If we have a specific itemgroup (ceintures, cravates, etc.)
-      if (pathSegments.length >= 3) {
-        const itemgroup = pathSegments[2];
-        return data.filter((product: Product) => 
-          normalizeString(product.itemgroup_product) === normalizeString(itemgroup)
-        );
-      }
-
+      // If we're on the univers-cadeaux page
       if (pathSegments[0] === 'univers-cadeaux') {
         return data
           .filter((product: Product) => 
@@ -58,20 +44,51 @@ const ProductsSection = ({ isFromFooter = false }: ProductsSectionProps) => {
           .slice(0, 6);
       }
 
-      return data.filter((product: Product) => {
-        if (pathSegments.length >= 2) {
-          const [type, category] = pathSegments;
+      // If we're on the accessories page
+      if (pathSegments.includes('accessoires') && pathSegments.length === 1) {
+        return data.filter((product: Product) => 
+          product.type_product.toLowerCase() === 'accessoires'
+        );
+      }
+
+      // Handle specific category/type/itemgroup paths
+      if (pathSegments.length >= 2) {
+        return data.filter((product: Product) => {
+          const [type, category, itemgroup] = pathSegments;
           
           const normalizedType = normalizeString(type);
           const normalizedCategory = normalizeString(category);
           const productType = normalizeString(product.type_product);
           const productCategory = normalizeString(product.category_product);
 
+          console.log('Filtering product:', {
+            productType,
+            productCategory,
+            normalizedType,
+            normalizedCategory,
+            itemgroup: itemgroup ? normalizeString(itemgroup) : null,
+            productItemgroup: product.itemgroup_product ? normalizeString(product.itemgroup_product) : null
+          });
+
+          // If we have an itemgroup specified (e.g., chemises, cravates)
+          if (itemgroup) {
+            const normalizedItemgroup = normalizeString(itemgroup);
+            const productItemgroup = normalizeString(product.itemgroup_product);
+
+            // Match type (e.g., pret-a-porter), category (homme/femme), and itemgroup (chemises)
+            return normalizedType === productType && 
+                   normalizedCategory === productCategory && 
+                   normalizedItemgroup === productItemgroup;
+          }
+
+          // If no itemgroup specified, just match type and category
           return normalizedType === productType && 
-                 (category ? normalizedCategory === productCategory : true);
-        }
-        return true;
-      });
+                 normalizedCategory === productCategory;
+        });
+      }
+
+      // Default case: return all products
+      return data;
     }
   });
 

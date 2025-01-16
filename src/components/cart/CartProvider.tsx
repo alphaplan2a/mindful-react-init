@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveCartItems, getCartItems } from '@/utils/cartStorage';
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { calculateDiscountedPrice } from '@/utils/priceCalculations';
+import { getPersonalizationPrice } from '@/utils/personalizationPricing';
 import { toast } from "@/hooks/use-toast";
 
 export interface CartItem {
@@ -90,9 +91,22 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         ? calculateDiscountedPrice(item.price, item.discount_product)
         : item.price;
 
+      // Calculate personalization price
+      const personalizationPrice = getPersonalizationPrice(
+        item.itemgroup_product || '',
+        item.personalization,
+        item.fromPack || false
+      );
+
+      console.log('Adding item to cart with prices:', {
+        basePrice: finalPrice,
+        personalizationPrice,
+        total: finalPrice + personalizationPrice
+      });
+
       const itemWithPack = {
         ...item,
-        price: finalPrice,
+        price: finalPrice + personalizationPrice,
         originalPrice: item.discount_product ? item.price : undefined,
         pack: item.pack || 'aucun',
         size: item.size || '-',
@@ -184,6 +198,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const subtotal = itemsSubtotal + boxTotal;
     const discount = hasNewsletterDiscount ? subtotal * 0.05 : 0;
     const total = subtotal - discount;
+    
+    console.log('Cart totals:', { itemsSubtotal, boxTotal, subtotal, discount, total });
     
     return { subtotal: itemsSubtotal, discount, total, boxTotal };
   };

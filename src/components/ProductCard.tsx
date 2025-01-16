@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
-import { calculateDiscountedPrice, formatPrice } from '@/utils/priceCalculations';
+import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
+import { PenLine } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -11,8 +12,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
   console.log('ProductCard discount:', product.discount_product);
   
-  const discountedPrice = calculateDiscountedPrice(product.price, product.discount_product);
-  const hasDiscount = product.discount_product !== "" && !isNaN(parseFloat(product.discount_product)) && parseFloat(product.discount_product) > 0;
+  const hasDiscount = product.discount_product !== "" && 
+                     !isNaN(parseFloat(product.discount_product)) && 
+                     parseFloat(product.discount_product) > 0;
+
+  const finalPrice = calculateFinalPrice(
+    product.price,
+    product.discount_product,
+    product.itemgroup_product,
+    product.personalization ? true : false
+  );
 
   return (
     <div 
@@ -47,7 +56,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {hasDiscount ? (
             <div className="space-y-1">
               <span className="text-[#700100] font-bold">
-                {formatPrice(discountedPrice)} TND
+                {formatPrice(finalPrice)} TND
               </span>
               <span className="text-gray-500 line-through block">
                 {formatPrice(product.price)} TND
@@ -55,8 +64,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </div>
           ) : (
             <span className="text-black">
-              {formatPrice(product.price)} TND
+              {formatPrice(finalPrice)} TND
             </span>
+          )}
+          {product.personalization && product.itemgroup_product === 'chemises' && (
+            <div className="flex items-center gap-1 text-xs text-[#700100] mt-1">
+              <PenLine size={12} />
+              Personnalisation: +30 TND
+            </div>
           )}
         </div>
       </div>

@@ -8,47 +8,47 @@ export type PackSpaceConfig = {
 
 export const packSpaceLabels: PackSpaceConfig = {
   'Pack Prestige': {
-    mainSpace: 'ESPACE CHEMISE',
-    secondarySpace: 'ESPACE CRAVATE',
-    tertiarySpace: 'ESPACE ACCESSOIRE'
+    mainSpace: 'CHEMISE',
+    secondarySpace: 'ACCESSOIRE',
+    tertiarySpace: 'ACCESSOIRE'
   },
   'Pack Premium': {
-    mainSpace: 'ESPACE CRAVATE',
-    secondarySpace: 'ESPACE PORTEFEUILLE',
-    tertiarySpace: 'ESPACE ACCESSOIRE'
+    mainSpace: 'CRAVATTE',
+    secondarySpace: 'PORTEFEUILLE',
+    tertiarySpace: 'ACCESSOIRE'
   },
   'Pack Trio': {
-    mainSpace: 'ESPACE CEINTURE',
-    secondarySpace: 'ESPACE PORTEFEUILLE',
-    tertiarySpace: 'ESPACE PORTE-CLÉS'
+    mainSpace: 'CEINTURE',
+    secondarySpace: 'PORTEFEUILLE',
+    tertiarySpace: 'PORTE-CLÉS'
   },
   'Pack Duo': {
-    mainSpace: 'ESPACE PORTEFEUILLE',
-    secondarySpace: 'ESPACE CEINTURE'
+    mainSpace: 'PORTEFEUILLE',
+    secondarySpace: 'CEINTURE'
   },
   'Pack Mini Duo': {
-    mainSpace: 'ESPACE PORTE-CARTES',
-    secondarySpace: 'ESPACE PORTE-CLÉS'
+    mainSpace: 'PORTE-CARTES',
+    secondarySpace: 'PORTE-CLÉS'
   },
   'Pack Chemise': {
-    mainSpace: 'ESPACE CHEMISE'
+    mainSpace: 'CHEMISE'
   },
   'Pack Ceinture': {
-    mainSpace: 'ESPACE CEINTURE'
+    mainSpace: 'CEINTURE'
   },
   'Pack Cravatte': {
-    mainSpace: 'ESPACE CRAVATE'
+    mainSpace: 'ACCESSOIRE'
   },
   'Pack Malette': {
-    mainSpace: 'ESPACE MALETTE'
+    mainSpace: 'MALETTE'
   },
   'Pack Portefeuille': {
-    mainSpace: 'ESPACE PORTEFEUILLE'
+    mainSpace: 'PORTEFEUILLE'
   },
   'Pack Porte-carte': {
-    mainSpace: 'ESPACE PORTE-CARTE'
+    mainSpace: 'PORTE-CARTE'
   },
   'Pack Porte-clé': {
-    mainSpace: 'ESPACE PORTE-CLÉ'
+    mainSpace: 'PORTE-CLÉ'
   }
 };

@@ -8,6 +8,7 @@ import ProductDetailsDialog from './dialogs/ProductDetailsDialog';
 import AddItemParticles from '../effects/AddItemParticles';
 import BoxRevealAnimation from './animations/BoxRevealAnimation';
 import { packSpaceLabels } from '@/config/packSpaceLabels';
+import { packSpaceDimensions } from '@/config/packSpaceDimensions';
 
 interface GiftBasket3DProps {
   items: Product[];
@@ -35,6 +36,7 @@ const GiftBasket3D = ({
 
   const packType = sessionStorage.getItem('selectedPackType') || 'Pack Prestige';
   const spaceLabels = packSpaceLabels[packType];
+  const spaceDimensions = packSpaceDimensions[packType];
 
   const handleDrop = (containerId: number) => (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -94,7 +96,7 @@ const GiftBasket3D = ({
         
         {containerCount === 3 ? (
           <div className="flex gap-3">
-            <div className="w-[65%] h-[583px]">
+            <div className={`${spaceDimensions.main.width} ${spaceDimensions.main.height}`}>
               <GiftPackContainer
                 title={spaceLabels?.mainSpace || "ESPACE PRINCIPAL"}
                 item={items[0]}
@@ -103,14 +105,15 @@ const GiftBasket3D = ({
                 onRemoveItem={() => onRemoveItem?.(0)}
                 containerIndex={0}
                 className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
+                imageScale={1.3}
               />
               {particlePosition && targetContainer === 0 && (
                 <AddItemParticles position={particlePosition} />
               )}
             </div>
             
-            <div className="w-[35%] flex flex-col gap-3">
-              <div className="h-[280px]">
+            <div className={`${spaceDimensions.secondary?.width || 'w-[40%]'} flex flex-col gap-3`}>
+              <div className={spaceDimensions.secondary?.height || 'h-[291px]'}>
                 <GiftPackContainer
                   title={spaceLabels?.secondarySpace || "ESPACE SECONDAIRE"}
                   item={items[1]}
@@ -119,12 +122,13 @@ const GiftBasket3D = ({
                   onRemoveItem={() => onRemoveItem?.(1)}
                   containerIndex={1}
                   className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
+                  imageScale={1.3}
                 />
                 {particlePosition && targetContainer === 1 && (
                   <AddItemParticles position={particlePosition} />
                 )}
               </div>
-              <div className="h-[280px]">
+              <div className={spaceDimensions.tertiary?.height || 'h-[291px]'}>
                 <GiftPackContainer
                   title={spaceLabels?.tertiarySpace || "ESPACE TERTIAIRE"}
                   item={items[2]}
@@ -133,6 +137,7 @@ const GiftBasket3D = ({
                   onRemoveItem={() => onRemoveItem?.(2)}
                   containerIndex={2}
                   className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
+                  imageScale={1.3}
                 />
                 {particlePosition && targetContainer === 2 && (
                   <AddItemParticles position={particlePosition} />
@@ -143,7 +148,7 @@ const GiftBasket3D = ({
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {Array.from({ length: containerCount }).map((_, index) => (
-              <div key={index} className="relative h-[300px]">
+              <div key={index} className={`relative ${spaceDimensions.main.height}`}>
                 <GiftPackContainer
                   title={spaceLabels?.mainSpace || "ESPACE PRINCIPAL"}
                   item={items[index]}

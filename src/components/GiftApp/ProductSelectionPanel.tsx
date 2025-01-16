@@ -42,15 +42,17 @@ const ProductSelectionPanel = ({
       let filteredProducts = data;
       const categories = getAvailableCategories(packType, selectedContainerIndex, selectedItems);
       
+      console.log('Filtering with categories:', categories);
+      
       if (categories.length > 0) {
         filteredProducts = data.filter(product => {
-          // For chemises, only show men's shirts
-          if (product.itemgroup_product === 'chemises') {
-            return product.category_product === 'homme';
-          }
-
           return categories.some(category => {
             if (category.type === 'itemgroup') {
+              // Check for additional filters if they exist
+              if (category.additionalFilter) {
+                return product.itemgroup_product === category.value && 
+                       product[category.additionalFilter.field as keyof Product] === category.additionalFilter.value;
+              }
               return product.itemgroup_product === category.value;
             }
             if (category.type === 'type') {

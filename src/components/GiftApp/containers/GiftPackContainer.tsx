@@ -12,6 +12,7 @@ interface GiftPackContainerProps {
   onRemoveItem?: (index: number) => void;
   containerIndex: number;
   className?: string;
+  imageScale?: number;
 }
 
 const GiftPackContainer = ({
@@ -22,6 +23,7 @@ const GiftPackContainer = ({
   onRemoveItem,
   containerIndex,
   className = '',
+  imageScale = 1,
 }: GiftPackContainerProps) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
 
@@ -79,7 +81,8 @@ const GiftPackContainer = ({
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg"
+                  className={`w-full h-full object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg transform scale-${imageScale}`}
+                  style={{ transform: `scale(${imageScale})` }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/80 backdrop-blur-sm rounded-b-lg">
                   <p className="text-xs font-medium text-white truncate text-center mb-0.5">

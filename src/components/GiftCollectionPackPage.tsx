@@ -6,7 +6,7 @@ const GiftCollectionPackPage = () => {
     { src: "https://respizenmedical.com/fiori/Premium/1.png", label: "Pack Premium", href: "/univers-cadeaux/packpremium" },
     { src: "https://respizenmedical.com/fiori/Trio/1.png", label: "Pack Trio", href: "/univers-cadeaux/packtrio" },
     { src: "GiftCards.png", label: "Pack Duo", href: "/univers-cadeaux/packduo" },
-    { src: "Services.png", label: "Pack Mini Duo", href: "/univers-cadeaux/packminiduo" },
+    { src: "packduo.png", label: "Pack Mini Duo", href: "/univers-cadeaux/packminiduo" },
   ];
 
   return (

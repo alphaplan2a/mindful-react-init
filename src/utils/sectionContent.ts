@@ -58,7 +58,7 @@ const sectionContent: Record<string, Record<string, Record<string, SectionConten
         title: "Portefeuilles",
         subtitle: "CUIR",
         description: "ARTISANAT TUNISIEN D'EXCELLENCE, FAÇONNÉ DANS LES PLUS BEAUX CUIRS ITALIENS.",
-        imageUrl: "/Articles/4.png"
+        imageUrl: "/Menu/accessoires.png"
       },
       "ceintures": {
         title: "Ceintures",

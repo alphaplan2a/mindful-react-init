@@ -6,8 +6,8 @@ const GiftCollection = () => {
     { src: "GiftGuide.png", label: "GIFT GUIDE", href: "/univers-cadeaux" },
     { src: "LuxurtGifts.png", label: "LUXURY GIFTS", href: "/univers-cadeaux/packprestige" },
     { src: "MustHaveGifts.png", label: "MUST HAVE GIFTS", href: "/category/accessoires" },
-    { src: "GiftCards.png", label: "GIFT CARDS", href: "#gift-cards" },
-    { src: "Services.png", label: "SERVICES", href: "#services" },
+    { src: "GiftCards.png", label: "GIFT CARDS", href: "/gift-cards" },
+    { src: "Services.png", label: "SERVICES", href: "/services" },
   ];
 
   return (

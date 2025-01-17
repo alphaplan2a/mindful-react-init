@@ -1,44 +1,32 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { AppWrapper } from "./components/AppWrapper";
-import { PageLoader } from "./components/PageLoader";
-import { usePageTracking } from "./hooks/usePageTracking";
-import { mainRoutes } from "./routes/mainRoutes";
-import { mondeFioriRoutes } from "./routes/mondeFioriRoutes";
-import { serviceRoutes } from "./routes/serviceRoutes";
+import React, { useEffect } from 'react';
+import { RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { CartProvider } from './components/cart/CartProvider';
+import router from './routes/mainRoutes';
+import './i18n';
+import { useTranslation } from 'react-i18next';
 
-// Wrapper component to implement tracking
-const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
-  usePageTracking();
-  return <>{children}</>;
+const App = () => {
+  const queryClient = new QueryClient();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    // Load preferred language from localStorage
+    const savedLanguage = localStorage.getItem('preferredLanguage');
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+    }
+  }, [i18n]);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CartProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </CartProvider>
+    </QueryClientProvider>
+  );
 };
-
-const App = () => (
-  <ErrorBoundary>
-    <AppWrapper>
-      <BrowserRouter>
-        <TrackingWrapper>
-          <AnimatePresence mode="wait">
-            <Routes>
-              {[...mainRoutes, ...mondeFioriRoutes, ...serviceRoutes].map((route) => (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      {route.element}
-                    </Suspense>
-                  }
-                />
-              ))}
-            </Routes>
-          </AnimatePresence>
-        </TrackingWrapper>
-      </BrowserRouter>
-    </AppWrapper>
-  </ErrorBoundary>
-);
 
 export default App;

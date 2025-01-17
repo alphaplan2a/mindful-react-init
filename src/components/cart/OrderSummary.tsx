@@ -170,15 +170,22 @@ const OrderSummary = ({
         />
 
         <div className="mt-6 space-y-2 text-sm text-[#8E9196]">
+      
           <p className="flex items-center gap-2 hover:text-[#1A1F2C] transition-colors">
             • Livraison gratuite à partir de 299 TND
           </p>
           <p className="flex items-center gap-2 hover:text-[#1A1F2C] transition-colors">
-            • Retours gratuits sous 14 jours
-          </p>
+  • Échange de produit sous 30 jours (payant)
+</p>
           <p className="flex items-center gap-2 hover:text-[#1A1F2C] transition-colors">
             • Service client disponible 24/7
           </p>
+          <p className="flex items-center gap-2 hover:text-[#1A1F2C] transition-colors">
+            • Livraison mondial disponible
+          </p>
+          <div className="flex justify-left items-center gap-4 mt-2">
+          <img src="https://i.ibb.co/pPLzH9L/image.png" alt="Payment Methods" className="h-6" />
+        </div>
         </div>
       </div>
     </motion.div>

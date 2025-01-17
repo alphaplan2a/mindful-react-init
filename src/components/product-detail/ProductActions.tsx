@@ -32,7 +32,7 @@ const ProductActions = ({
         </p>
         <p className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#700100]"></span>
-          L'ajout d'une personnalisation nécessitera un paiement en ligne
+          Nous acceptons les échanges sous 30 jours
         </p>
       </div>
     </>

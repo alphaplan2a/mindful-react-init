@@ -72,12 +72,12 @@ const PackSummary = ({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
                 <p className="text-sm text-[#6D0201]">{item.price.toFixed(2)} TND</p>
-                {item.personalization && item.itemgroup_product === 'chemises' && (
+              {/*   {item.personalization && item.itemgroup_product === 'chemises' && (
                   <div className="flex items-center gap-1 text-xs text-[#700100] mt-1">
                     <PenLine size={12} />
                     Personnalisation incluse
                   </div>
-                )}
+                )} */}
               </div>
             </motion.div>
           ))}

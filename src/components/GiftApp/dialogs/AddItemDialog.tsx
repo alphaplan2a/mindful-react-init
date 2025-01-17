@@ -35,7 +35,7 @@ const AddItemDialog = ({
     if (!product || !product.sizes) return [];
 
     // For items that don't need size selection
-    if (['cravates', 'portefeuilles'].includes(product.itemgroup_product)) {
+    if (['cravates', 'portefeuilles', 'porte-cles'].includes(product.itemgroup_product)) {
       // Automatically select a default size
       if (!selectedSize) {
         onSizeSelect('unique');
@@ -55,11 +55,11 @@ const AddItemDialog = ({
   const availableSizes = getAvailableSizes(droppedItem);
   const canPersonalize = droppedItem ? canItemBePersonalized(droppedItem.itemgroup_product) : false;
   const personalizationMessage = droppedItem ? getPersonalizationMessage(droppedItem.itemgroup_product) : undefined;
-  const needsSizeSelection = droppedItem ? !['cravates', 'portefeuilles'].includes(droppedItem.itemgroup_product) : false;
-  const isPortefeuilleOrCravate = droppedItem ? ['portefeuilles', 'cravates'].includes(droppedItem.itemgroup_product) : false;
+  const needsSizeSelection = droppedItem ? !['cravates', 'portefeuilles', 'porte-cles'].includes(droppedItem.itemgroup_product) : false;
+  const isNoSizeItem = droppedItem ? ['portefeuilles', 'cravates', 'porte-cles'].includes(droppedItem.itemgroup_product) : false;
 
   const canConfirm = () => {
-    if (isPortefeuilleOrCravate) return true;
+    if (isNoSizeItem) return true;
     if (needsSizeSelection && !selectedSize) return false;
     if (needsSizeSelection && availableSizes.length === 0) return false;
     return true;
@@ -91,7 +91,7 @@ const AddItemDialog = ({
             />
           )}
 
-          {needsSizeSelection && availableSizes.length === 0 && !isPortefeuilleOrCravate && (
+          {needsSizeSelection && availableSizes.length === 0 && !isNoSizeItem && (
             <p className="text-red-500">Aucune taille disponible pour ce produit</p>
           )}
 

@@ -29,7 +29,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       onClick={() => navigate(`/product/${product.id}`)}
     >
       <div className="h-[300px] bg-transparent overflow-hidden mb-3 relative">
-        {hasDiscount && (
+        {hasDiscount && parseFloat(product.discount_product) > 0 && (
           <div className="absolute top-2 right-2 bg-[#700100] text-white px-2 py-1 rounded-full text-sm font-medium">
             -{product.discount_product}%
           </div>
@@ -53,7 +53,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {product.color}
         </div>
         <div className="mt-2 font-['WomanFontRegular']">
-          {hasDiscount ? (
+          {hasDiscount && parseFloat(product.discount_product) > 0 ? (
             <div className="space-y-1">
               <span className="text-[#700100] font-bold">
                 {formatPrice(finalPrice)} TND

@@ -1,12 +1,9 @@
 import React from 'react';
-import { Route, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { PageLoader } from "@/components/PageLoader";
 
-// Lazy load pages with reduced chunk size
-const Index = React.lazy(() => import("@/pages/Index"), { 
-  suspense: true,
-  loading: PageLoader 
-});
+// Lazy load pages
+const Index = React.lazy(() => import("@/pages/Index"));
 const CategoryPage = React.lazy(() => import("@/pages/CategoryPage"));
 const GiftUniversePage = React.lazy(() => import("@/pages/GiftUniversePage"));
 const CartPage = React.lazy(() => import('@/pages/CartPage'));
@@ -16,45 +13,43 @@ const PromoCodesPage = React.lazy(() => import('@/pages/PromoCodesPage'));
 const OrderPreviewPage = React.lazy(() => import('@/pages/OrderPreviewPage'));
 const ProductDetailPage = React.lazy(() => import('@/pages/ProductDetailPage'));
 
-export const mainRoutes = [
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <Index />
+    element: <Index />,
   },
   {
     path: "/category/*",
-    element: <CategoryPage />
+    element: <CategoryPage />,
   },
   {
     path: "/univers-cadeaux/*",
-    element: <GiftUniversePage />
+    element: <GiftUniversePage />,
   },
   {
     path: "/cart",
-    element: <CartPage />
+    element: <CartPage />,
   },
   {
     path: "/payment-success",
-    element: <PaymentSuccessPage />
+    element: <PaymentSuccessPage />,
   },
   {
     path: "/payment-failure",
-    element: <PaymentFailurePage />
+    element: <PaymentFailurePage />,
   },
   {
     path: "/promo-codes",
-    element: <PromoCodesPage />
+    element: <PromoCodesPage />,
   },
   {
     path: "/order-preview",
-    element: <OrderPreviewPage />
+    element: <OrderPreviewPage />,
   },
   {
     path: "/product/:id",
-    element: <ProductDetailPage />
+    element: <ProductDetailPage />,
   },
-  {
-    path: "*",
-    element: <Navigate to="/" replace />
-  }
-];
+]);
+
+export default router;

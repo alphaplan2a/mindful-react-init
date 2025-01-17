@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Skeleton } from "./ui/skeleton";
 
 export const PageLoader = () => (
   <motion.div 
@@ -9,10 +8,18 @@ export const PageLoader = () => (
     transition={{ duration: 0.2 }}
     className="min-h-screen flex items-center justify-center p-4"
   >
-    <div className="w-full max-w-md space-y-4">
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-64 w-full" />
-      <Skeleton className="h-32 w-full" />
+    <div className="relative">
+      <motion.div
+        className="w-12 h-12 border-4 border-[#700100] border-t-transparent rounded-full"
+        animate={{
+          rotate: 360
+        }}
+        transition={{
+          duration: 0.8,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+      />
     </div>
   </motion.div>
 );

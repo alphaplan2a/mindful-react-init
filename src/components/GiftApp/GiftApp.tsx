@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useCart } from "../cart/CartProvider";
 import { toast } from "@/hooks/use-toast";
@@ -23,6 +23,7 @@ const GiftApp = () => {
   const [selectedItems, setSelectedItems] = useState<Product[]>([]);
   const [packNote, setPackNote] = useState("");
   const [selectedContainerIndex, setSelectedContainerIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const packType = sessionStorage.getItem('selectedPackType') || 'Pack Trio';
@@ -37,66 +38,79 @@ const GiftApp = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleConfirmPack = async () => {
-    console.log('Confirming pack with items:', selectedItems);
-    
+  const handleConfirmPack = useCallback(async () => {
+    if (isSubmitting) {
+      console.log('Submission already in progress, preventing double submission');
+      return;
+    }
+
     if (!validatePackSelection(selectedItems, containerCount, packType)) {
       return;
     }
 
+    setIsSubmitting(true);
     setIsLoading(true);
-    const packPrice = getPackPrice(packType);
-    const packImage = getPackImage(packType);
-    
-    if (packPrice > 0) {
-      addToCart({
-        id: Date.now(),
-        name: `${packType} - Frais de packaging`,
-        price: packPrice,
-        quantity: 1,
-        image: packImage,
-        type_product: "Pack",
-        itemgroup_product: "Pack",
-        size: "-",
-        color: "-",
-        personalization: "-",
-        pack: "aucun",
-      });
-    }
-    
-    for (const item of selectedItems) {
-      console.log('Adding item to cart:', item);
-      await new Promise(resolve => setTimeout(resolve, 500));
+
+    try {
+      const packPrice = getPackPrice(packType);
+      const packImage = getPackImage(packType);
       
-      const itemToAdd = {
-        ...item,
-        quantity: 1,
-        personalization: item.personalization || '-',
-        pack: packType,
-        size: item.size || '-',
-        color: item.color || '-',
-        fromPack: true
-      };
+      if (packPrice > 0) {
+        addToCart({
+          id: Date.now(),
+          name: `${packType} - Frais de packaging`,
+          price: packPrice,
+          quantity: 1,
+          image: packImage,
+          type_product: "Pack",
+          itemgroup_product: "Pack",
+          size: "-",
+          color: "-",
+          personalization: "-",
+          pack: "aucun",
+        });
+      }
 
-      console.log('Final item being added to cart:', itemToAdd);
-      addToCart(itemToAdd);
+      // Add all items synchronously to prevent race conditionsnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+      selectedItems.forEach(item => {
+        const itemToAdd = {
+          ...item,
+          quantity: 1,
+          personalization: item.personalization || '-',
+          pack: packType,
+          size: item.size || '-',
+          color: item.color || '-',
+          fromPack: true
+        };
+        addToCart(itemToAdd);
+      });
+
+      toast({
+        title: "Pack Ajouté au Panier! 🎉",
+        description: packPrice > 0 
+          ? `Pack et frais de packaging (${packPrice} TND) ajoutés au panier`
+          : "Pack ajouté au panier",
+        style: {
+          backgroundColor: '#700100',
+          color: 'white',
+          border: '1px solid #590000',
+        },
+      });
+
+      // Immediate navigation to cart
+      navigate('/cart');
+    } catch (error) {
+      console.error('Error adding pack to cart:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout au panier",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setIsSubmitting(false);
     }
-
-    toast({
-      title: "Pack Ajouté au Panier! 🎉",
-      description: packPrice > 0 
-        ? `Pack et frais de packaging (${packPrice} TND) ajoutés au panier`
-        : "Pack ajouté au panier",
-      style: {
-        backgroundColor: '#700100',
-        color: 'white',
-        border: '1px solid #590000',
-      },
-    });
-
-    setIsLoading(false);
-    navigate('/cart');
-  };
+  }, [isSubmitting, selectedItems, containerCount, packType, addToCart, navigate]);
 
   const handleItemDrop = (item: Product, size: string, personalization: string) => {
     console.log('Item dropped with size:', size, 'and personalization:', personalization);
@@ -185,7 +199,7 @@ const GiftApp = () => {
             />
             <ConfirmationButton
               onConfirm={handleConfirmPack}
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems.length === 0 || isSubmitting}
             />
           </div>
         </div>

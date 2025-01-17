@@ -1,8 +1,11 @@
 export const calculateDiscountedPrice = (originalPrice: number, discount: string): number => {
   if (!discount || discount === "") return originalPrice;
-  const discountValue = parseFloat(discount);
-  if (isNaN(discountValue) || discountValue <= 0) return originalPrice;
-  return originalPrice * (1 - discountValue / 100);
+  
+  // Extract only numeric characters and convert to number
+  const numericDiscount = parseFloat(discount.replace(/[^0-9.]/g, ''));
+  
+  if (isNaN(numericDiscount) || numericDiscount <= 0) return originalPrice;
+  return originalPrice * (1 - numericDiscount / 100);
 };
 
 export const formatPrice = (price: number): string => {

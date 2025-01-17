@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CreditCard } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
 import { initKonnectPayment } from '@/services/konnectApi';
-import PaymentLoadingScreen from '../payment/PaymentLoadingScreen';
 
 interface PaymentButtonsProps {
   enabled: boolean;
@@ -26,7 +25,6 @@ const PaymentButtons = ({
   finalTotal
 }: PaymentButtonsProps) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleKonnectPayment = async () => {
     if (!enabled || !userDetails) {
@@ -47,15 +45,16 @@ const PaymentButtons = ({
       return;
     }
 
-    setIsLoading(true);
     console.log('Payment process started with amount:', finalTotal);
 
     try {
       const orderId = `ORDER-${Date.now()}`;
+      // Set payment initiation timestamp
+      sessionStorage.setItem('paymentInitiated', Date.now().toString());
 
       if (BYPASS_PAYMENT) {
         console.log('Payment bypassed for testing - simulating successful payment');
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 500)); // Reduced timeout
 
         sessionStorage.setItem('pendingOrder', JSON.stringify({
           cartItems,
@@ -90,6 +89,7 @@ const PaymentButtons = ({
       }
     } catch (error: any) {
       console.error('Payment error:', error);
+      sessionStorage.removeItem('paymentInitiated');
       
       let errorMessage = "Une erreur s'est produite lors de l'initialisation du paiement.";
       if (error.message.includes('Invalid amount')) {
@@ -101,32 +101,25 @@ const PaymentButtons = ({
         description: errorMessage,
         variant: "destructive",
       });
-      setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <AnimatePresence>
-        {isLoading && <PaymentLoadingScreen />}
-      </AnimatePresence>
-
-      <div className="space-y-3">
-        <motion.button
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: enabled ? 1 : 0.5 }}
-          whileHover={enabled ? { scale: 1.02 } : {}}
-          onClick={handleKonnectPayment}
-          disabled={!enabled || isLoading}
-          className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-        >
-          <CreditCard size={20} />
-          {BYPASS_PAYMENT ? 
-            `Payer (Mode Test) (${finalTotal.toFixed(2)} TND)` : 
-            `Payer avec carte bancaire (${finalTotal.toFixed(2)} TND)`}
-        </motion.button>
-      </div>
-    </>
+    <div className="space-y-3">
+      <motion.button
+        initial={{ opacity: 0.5 }}
+        animate={{ opacity: enabled ? 1 : 0.5 }}
+        whileHover={enabled ? { scale: 1.02 } : {}}
+        onClick={handleKonnectPayment}
+        disabled={!enabled}
+        className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+      >
+        <CreditCard size={20} />
+        {BYPASS_PAYMENT ? 
+          `Payer (Mode Test) (${finalTotal.toFixed(2)} TND)` : 
+          `Payer avec carte bancaire (${finalTotal.toFixed(2)} TND)`}
+      </motion.button>
+    </div>
   );
 };
 

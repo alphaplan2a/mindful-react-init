@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import TopNavbar from '@/components/TopNavbar';
 import Footer from '@/components/Footer';
@@ -18,6 +18,7 @@ import WelcomePackMalette from '@/components/GiftApp/WelcomePackMalette';
 import WelcomePackPortefeuille from '@/components/GiftApp/WelcomePackPortefeuille';
 import WelcomePackPorteCarte from '@/components/GiftApp/WelcomePackPorteCarte';
 import WelcomePackPorteCle from '@/components/GiftApp/WelcomePackPorteCle';
+import WhatsAppPopup from '@/components/WhatsAppPopup';
 
 const GiftUniversePage = () => {
   const [showGiftBox, setShowGiftBox] = useState(false);
@@ -98,6 +99,9 @@ const GiftUniversePage = () => {
           )
         )}
       </div>
+      <Suspense fallback={null}>
+                      <WhatsAppPopup />
+   </Suspense>
       <Footer />
     </div>
   );

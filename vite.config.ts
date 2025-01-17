@@ -23,20 +23,10 @@ export default defineConfig(({ mode }) => ({
     cssMinify: true,
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'vendor-react';
-            if (id.includes('@tanstack')) return 'vendor-tanstack';
-            if (id.includes('framer-motion')) return 'vendor-framer';
-            if (id.includes('@radix-ui')) return 'vendor-radix';
-            return 'vendor';
-          }
-          if (id.includes('src/pages')) {
-            return 'pages';
-          }
-          if (id.includes('src/components')) {
-            return 'components';
-          }
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          motion: ['framer-motion'],
+          ui: ['@radix-ui/react-navigation-menu', '@radix-ui/react-dialog']
         }
       }
     },

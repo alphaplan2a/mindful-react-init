@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { VideoModal } from './VideoModal';
 import { VideoPreview } from './VideoPreview';
 import { getPackContent } from '@/config/packContent';
+import WhatsAppPopup from '../WhatsAppPopup';
 
 interface WelcomePackTemplateProps {
   packType: string;
@@ -54,6 +55,9 @@ const WelcomePackTemplate = ({ packType, onCompose }: WelcomePackTemplateProps) 
           </div>
         </div>
       </div>
+      <Suspense fallback={null}>
+                      <WhatsAppPopup />
+   </Suspense>
       <VideoModal
         isOpen={isVideoOpen}
         onClose={() => setIsVideoOpen(false)}

@@ -2,11 +2,11 @@ import React from "react";
 
 const GiftCollectionPackPage = () => {
   const items = [
-    { src: "https://respizenmedical.com/fiori/Prestige/1.png", label: "Pack Prestige", href: "/univers-cadeaux/packprestige" },
-    { src: "https://respizenmedical.com/fiori/Premium/1.png", label: "Pack Premium", href: "/univers-cadeaux/packpremium" },
-    { src: "https://respizenmedical.com/fiori/Trio/1.png", label: "Pack Trio", href: "/univers-cadeaux/packtrio" },
-    { src: "GiftCards.png", label: "Pack Duo", href: "/univers-cadeaux/packduo" },
-    { src: "packduo.png", label: "Pack Mini Duo", href: "/univers-cadeaux/packminiduo" },
+    { src: "/Packs/PackPrestige2.png", label: "Pack Prestige", href: "/univers-cadeaux/packprestige" },
+    { src: "/Packs/PackPremuim.jpg", label: "Pack Premium", href: "/univers-cadeaux/packpremium" },
+    { src: "/Packs/PackTrio.jpg", label: "Pack Trio", href: "/univers-cadeaux/packtrio" },
+    { src: "packduo.png", label: "Pack Duo", href: "/univers-cadeaux/packduo" },
+    { src: "Packduomini2.png", label: "Pack Mini Duo", href: "/univers-cadeaux/packminiduo" },
   ];
 
   return (
@@ -19,13 +19,13 @@ const GiftCollectionPackPage = () => {
           </p>
         </div>
 
-        {/* Updated Flexbox Layout */}
-        <div className="flex flex-wrap justify-between gap-6">
+        {/* Updated Flexbox Layout with Responsive Classes */}
+        <div className="flex flex-wrap justify-between gap-6 md:gap-8">
           {items.map((item, index) => (
             <a
               key={index}
               href={item.href}
-              className="relative flex-grow max-w-[18%] w-full h-[430px] bg-white shadow-lg overflow-hidden group"
+              className="relative flex-grow max-w-full sm:max-w-[47%] md:max-w-[18%] w-full h-[430px] bg-white shadow-lg overflow-hidden group"
             >
               <img
                 src={item.src}

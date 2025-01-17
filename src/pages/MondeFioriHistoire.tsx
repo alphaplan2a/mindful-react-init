@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import TopNavbar from '../components/TopNavbar';
 import BrandNavbarSection from '../components/productsPages/BrandNavbarSection';
 import MainNavbar from '@/components/MainNavbar';
 import Footer from '../components/Footer';
+import WhatsAppPopup from '@/components/WhatsAppPopup';
 
 const MondeFioriHistoire = () => {
   return (
@@ -51,6 +52,9 @@ const MondeFioriHistoire = () => {
           </div>
         </div>
       </div>
+      <Suspense fallback={null}>
+                      <WhatsAppPopup />
+   </Suspense>
       <Footer />
     </div>
   );

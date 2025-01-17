@@ -12,51 +12,51 @@ export const PERSONALIZATION_PRICES: PersonalizationPricing = {
   },
   'costumes': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'blazers': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'pantalons': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'pollo': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'robes': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'vestes': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'portefeuilles': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'ceintures': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'mallettes': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'porte-cartes': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'porte-cles': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   },
   'sacs-a-main': {
     price: 30,
-    freeInPacks: false
+    freeInPacks: true
   }
 };
 

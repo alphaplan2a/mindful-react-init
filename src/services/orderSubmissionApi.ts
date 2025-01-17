@@ -69,7 +69,7 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
         address: orderData.user_details.address || '',
         country: orderData.user_details.country || '',
         zip_code: orderData.user_details.zip_code || '',
-        order_note: orderData.user_details.order_note || 'No notes provided'
+        order_note: orderData.user_details.order_note || '-'
       },
       items: orderData.items.map(item => ({
         product_id: item.item_id,
@@ -97,7 +97,7 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
         completed_at: orderData.payment.completed_at
       },
       order_status: {
-        status: 'pending',
+        status: 'reussie',
         shipped_at: null,
         delivered_at: null
       }
@@ -151,7 +151,6 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
   }
 };
 
-// Update email confirmation to match the new format
 const sendOrderConfirmationEmail = async (orderData: any): Promise<void> => {
   console.log('Starting email confirmation process...');
   
@@ -165,18 +164,18 @@ const sendOrderConfirmationEmail = async (orderData: any): Promise<void> => {
         country: orderData.user_details.country,
         zip_code: orderData.user_details.zip_code,
         phone: orderData.user_details.phone,
-        order_note: orderData.user_details.order_note
+        order_note: orderData.user_details.order_note || '-'
       },
       order_id: orderData.order_id,
       items: orderData.items.map((item: any) => ({
         name: item.name,
-        size: item.size,
-        color: item.color,
+        size: item.size || '-',
+        color: item.color || '-',
         quantity: item.quantity,
-        total_price: item.total_price.toString(),
-        personalization: item.personalization,
-        pack: item.pack,
-        box: item.box
+        total_price: item.total_price,
+        personalization: item.personalization || '-',
+        pack: item.pack || '-',
+        box: item.box || '-'
       })),
       price_details: {
         subtotal: orderData.price_details.subtotal.toString(),
@@ -185,12 +184,12 @@ const sendOrderConfirmationEmail = async (orderData: any): Promise<void> => {
         final_total: orderData.price_details.final_total.toString()
       },
       payment: {
-        method: orderData.payment.method,
+        method: orderData.payment.method === 'card' ? 'Credit Card' : 'Cash',
         status: orderData.payment.status
       }
     };
 
-    console.log('Sending email with data:', JSON.stringify(emailPayload, null, 2));
+    console.log('Sending email with payload:', JSON.stringify(emailPayload, null, 2));
 
     const response = await fetch('https://www.fioriforyou.com/testsmtp.php', {
       method: 'POST',
@@ -205,11 +204,16 @@ const sendOrderConfirmationEmail = async (orderData: any): Promise<void> => {
       throw new Error(`Email API error: ${response.status}`);
     }
 
-    const result = await response.json();
+    const result = await response.text();
     console.log('Email confirmation response:', result);
 
-    if (result.error) {
-      throw new Error(`Email service error: ${result.error}`);
+    try {
+      const jsonResult = JSON.parse(result);
+      if (jsonResult.error) {
+        throw new Error(`Email service error: ${jsonResult.error}`);
+      }
+    } catch (parseError) {
+      console.log('Response was not JSON, but email might have been sent:', result);
     }
   } catch (error) {
     console.error('Error sending confirmation email:', error);

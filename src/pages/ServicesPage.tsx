@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import TopNavbar from '../components/TopNavbar';
 import BrandNavbarSection from '../components/productsPages/BrandNavbarSection';
 import MainNavbar from '@/components/MainNavbar';
 import Footer from '../components/Footer';
 import { Button } from "@/components/ui/button";
+import WhatsAppPopup from '@/components/WhatsAppPopup';
 
 const ServicesPage = () => {
   return (
@@ -50,6 +51,9 @@ const ServicesPage = () => {
           </div>
         </div>
       </div>
+      <Suspense fallback={null}>
+                      <WhatsAppPopup />
+   </Suspense>
       <Footer />
     </div>
   );

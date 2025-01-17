@@ -38,6 +38,17 @@ const GiftApp = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleItemDrop = useCallback((item: Product, size: string, personalization: string) => {
+    console.log('Handling item drop:', { item, size, personalization });
+    const updatedItem = { ...item, size, personalization };
+    setSelectedItems(prev => [...prev, updatedItem]);
+    playTickSound();
+  }, []);
+
+  const handleRemoveItem = useCallback((index: number) => {
+    setSelectedItems(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
   const handleConfirmPack = useCallback(async () => {
     if (isSubmitting) {
       console.log('Submission already in progress, preventing double submission');
@@ -75,7 +86,7 @@ const GiftApp = () => {
         const itemToAdd = {
           ...item,
           quantity: 1,
-          personalization: "-", // Force personalization to "-" for pack items
+          personalization: "-",
           pack: packType,
           size: item.size || '-',
           color: item.color || '-',

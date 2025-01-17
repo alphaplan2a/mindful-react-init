@@ -1,28 +1,31 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Men = () => {
+  const { t } = useTranslation();
+
   const images = [
     {
       src: "Men1.png",
       alt: "Image 1",
-      text: "Clothes"
+      text: t('mensEssential.categories.clothes')
     },
     {
       src: "Men2.png",
       alt: "Image 2",
-      text: "Gifts"
+      text: t('mensEssential.categories.gifts')
     },
     {
       src: "Men3.png",
       alt: "Image 3",
-      text: "Accessories"
+      text: t('mensEssential.categories.accessories')
     }
   ];
 
   return (
     <section className="py-8 px-4 flex flex-col items-center justify-center bg-gray-50">
       <h1 className="text-[2.7rem] md:text-[3.3rem] text-[#700100] font-['WomanFontRegular'] mb-8">
-        Mens Essential
+        {t('mensEssential.title')}
       </h1>
      
       <div className="flex flex-wrap gap-6 justify-center max-w-[1800px] mx-auto px-4">

@@ -72,10 +72,15 @@ export default {
       blazers: "Blazers"
     }
   },
-  newCollection: {
-    title: "New Collection",
-    description: "Discover our latest designs and exceptional craftsmanship",
-    discoverMore: "DISCOVER MORE"
+  giftCollection: {
+    title: "The Fiori World",
+    items: {
+      giftGuide: "GIFT GUIDE",
+      luxuryGifts: "LUXURY GIFTS",
+      mustHaveGifts: "MUST HAVE GIFTS",
+      giftCards: "GIFT CARDS",
+      services: "SERVICES"
+    }
   },
   brandLocation: {
     findStore: "Find a Store",
@@ -90,6 +95,14 @@ export default {
       submit: "Send your review",
       thankYou: "Thank you for your review!",
       feedback: "Your feedback is very important to us."
+    }
+  },
+  mensEssential: {
+    title: "Mens Essential",
+    categories: {
+      clothes: "Clothes",
+      gifts: "Gifts",
+      accessories: "Accessories"
     }
   }
 };

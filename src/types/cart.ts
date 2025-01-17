@@ -14,6 +14,7 @@ export interface CartItem {
   withBox?: boolean;
   fromPack?: boolean;
   originalPrice?: number;
+  pack?: string;
 }
 
 export interface CartContextType {

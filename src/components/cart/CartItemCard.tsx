@@ -22,6 +22,7 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
   const hasPersonalization = item.personalization && item.personalization !== '-';
   const isChemise = item.itemgroup_product === 'chemises';
   const showPersonalizationCost = hasPersonalization && isChemise && !isFromPack;
+  const canPersonalize = !isFromPack && item.type_product !== "Pack"; // Disable personalization for pack items
 
   const handleSavePersonalization = () => {
     savePersonalization(item.id, personalizationText);
@@ -92,7 +93,7 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
             </div>
           )}
 
-          {item.personalization && (
+          {canPersonalize && item.personalization && (
             <div className="mb-2 bg-gray-50 p-3 rounded-lg relative group cursor-pointer" onClick={() => setIsPersonalizationOpen(true)}>
               <p className="text-sm text-gray-600 pr-8">
                 Personnalisation: {item.personalization}
@@ -149,7 +150,8 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
         </div>
       </div>
 
-      <Dialog open={isPersonalizationOpen} onOpenChange={setIsPersonalizationOpen}>
+      {canPersonalize && (
+        <Dialog open={isPersonalizationOpen} onOpenChange={setIsPersonalizationOpen}>
         <DialogContent className="sm:max-w-[500px] bg-white shadow-xl border border-gray-100">
           <DialogHeader>
             <DialogTitle className="text-xl font-serif text-[#700100] mb-4 text-center">
@@ -191,7 +193,7 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+      )}
     </motion.div>
   );
 };

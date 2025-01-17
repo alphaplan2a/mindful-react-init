@@ -19,7 +19,7 @@ const PersonalizationButton = ({ productId, onSave, initialText = '', itemgroup_
   const [text, setText] = useState(initialText);
   const { toast } = useToast();
 
-  const maxLength = itemgroup_product === 'chemises' ? 3 : 100;
+  const maxLength = itemgroup_product === 'chemises' ? 4 : 100;
   const remainingChars = maxLength - text.length;
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -31,10 +31,10 @@ const PersonalizationButton = ({ productId, onSave, initialText = '', itemgroup_
 
   const handleSave = () => {
     if (text.trim()) {
-      if (itemgroup_product === 'chemises' && text.length > 3) {
+      if (itemgroup_product === 'chemises' && text.length > 4) {
         toast({
           title: "Erreur de personnalisation",
-          description: "Pour les chemises, la personnalisation est limitée à 3 caractères maximum",
+          description: "Pour les chemises, la personnalisation est limitée à 4 caractères maximum",
           variant: "destructive",
         });
         return;
@@ -77,7 +77,7 @@ const PersonalizationButton = ({ productId, onSave, initialText = '', itemgroup_
               </label>
               <Textarea
                 placeholder={itemgroup_product === 'chemises' 
-                  ? "Maximum 3 caractères (ex: IHC)"
+                  ? "Maximum 4 caractères (ex: IHEB)"
                   : "Ajoutez votre texte personnalisé ici..."}
                 value={text}
                 onChange={handleTextChange}
@@ -86,7 +86,7 @@ const PersonalizationButton = ({ productId, onSave, initialText = '', itemgroup_
               />
               <p className="text-sm text-gray-500 italic">
                 {itemgroup_product === 'chemises' 
-                  ? "Pour les chemises, la personnalisation est limitée à 3 caractères"
+                  ? "Pour les chemises, la personnalisation est limitée à 4 caractères"
                   : "Maximum 100 caractères"}
               </p>
             </div>

@@ -19,6 +19,7 @@ interface AddItemDialogProps {
   onSizeSelect: (size: string) => void;
   onPersonalizationChange: (text: string) => void;
   onConfirm: () => void;
+  isEditing?: boolean;
 }
 
 const AddItemDialog = ({
@@ -30,13 +31,12 @@ const AddItemDialog = ({
   onSizeSelect,
   onPersonalizationChange,
   onConfirm,
+  isEditing = false,
 }: AddItemDialogProps) => {
   const getAvailableSizes = (product: Product | null): string[] => {
     if (!product || !product.sizes) return [];
 
-    // For items that don't need size selection
     if (['cravates', 'portefeuilles', 'porte-cles'].includes(product.itemgroup_product)) {
-      // Automatically select a default size
       if (!selectedSize) {
         onSizeSelect('unique');
       }
@@ -70,7 +70,7 @@ const AddItemDialog = ({
       <DialogContent className="sm:max-w-[500px] bg-white/95">
         <DialogHeader>
           <DialogTitle className="text-xl font-serif text-[#6D0201] mb-4">
-            {needsSizeSelection ? 'Personnalisez votre article' : 'Confirmer la sélection'}
+            {isEditing ? 'Modifier l\'article' : needsSizeSelection ? 'Personnalisez votre article' : 'Confirmer la sélection'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
@@ -88,6 +88,7 @@ const AddItemDialog = ({
               productId={droppedItem?.id || 0}
               onSave={onPersonalizationChange}
               initialText={personalization}
+              itemgroup_product={droppedItem?.itemgroup_product}
             />
           )}
 
@@ -104,7 +105,7 @@ const AddItemDialog = ({
             }`}
             disabled={!canConfirm()}
           >
-            Confirmer
+            {isEditing ? 'Enregistrer les modifications' : 'Confirmer'}
           </button>
         </div>
       </DialogContent>

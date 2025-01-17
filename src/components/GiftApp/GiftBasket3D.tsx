@@ -16,6 +16,7 @@ interface GiftBasket3DProps {
   onRemoveItem?: (index: number) => void;
   containerCount: number;
   onContainerSelect: (index: number) => void;
+  onEditItem?: (item: Product, index: number, size: string, personalization: string) => void;
 }
 
 const GiftBasket3D = ({ 
@@ -23,7 +24,8 @@ const GiftBasket3D = ({
   onItemDrop, 
   onRemoveItem,
   containerCount,
-  onContainerSelect
+  onContainerSelect,
+  onEditItem
 }: GiftBasket3DProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
@@ -32,6 +34,7 @@ const GiftBasket3D = ({
   const [droppedItem, setDroppedItem] = useState<Product | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [targetContainer, setTargetContainer] = useState<number>(0);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [particlePosition, setParticlePosition] = useState<{ x: number; y: number } | null>(null);
 
   const packType = sessionStorage.getItem('selectedPackType') || 'Pack Prestige';
@@ -60,14 +63,21 @@ const GiftBasket3D = ({
 
   const handleConfirm = () => {
     if (droppedItem && selectedSize) {
-      onItemDrop(droppedItem, selectedSize, personalization);
+      if (editingIndex !== null && onEditItem) {
+        onEditItem(droppedItem, editingIndex, selectedSize, personalization);
+        setEditingIndex(null);
+      } else {
+        onItemDrop(droppedItem, selectedSize, personalization);
+      }
       setShowAddDialog(false);
       setSelectedSize('');
       setPersonalization('');
       setDroppedItem(null);
       toast({
-        title: "Article ajouté au pack",
-        description: "L'article a été ajouté avec succès à votre pack cadeau",
+        title: editingIndex !== null ? "Article modifié" : "Article ajouté au pack",
+        description: editingIndex !== null 
+          ? "Les modifications ont été enregistrées avec succès"
+          : "L'article a été ajouté avec succès à votre pack cadeau",
         style: {
           backgroundColor: '#700100',
           color: 'white',
@@ -84,9 +94,12 @@ const GiftBasket3D = ({
     }
   };
 
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setShowProductModal(true);
+  const handleEditItem = (item: Product, index: number) => {
+    setDroppedItem(item);
+    setEditingIndex(index);
+    setSelectedSize(item.size || '');
+    setPersonalization(item.personalization || '');
+    setShowAddDialog(true);
   };
 
   return (
@@ -101,11 +114,10 @@ const GiftBasket3D = ({
                 title={spaceLabels?.mainSpace || "ESPACE PRINCIPAL"}
                 item={items[0]}
                 onDrop={handleDrop(0)}
-                onItemClick={handleProductClick}
                 onRemoveItem={() => onRemoveItem?.(0)}
+                onEditItem={handleEditItem}
                 containerIndex={0}
                 className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
-                imageScale={1.3}
               />
               {particlePosition && targetContainer === 0 && (
                 <AddItemParticles position={particlePosition} />
@@ -118,11 +130,10 @@ const GiftBasket3D = ({
                   title={spaceLabels?.secondarySpace || "ESPACE SECONDAIRE"}
                   item={items[1]}
                   onDrop={handleDrop(1)}
-                  onItemClick={handleProductClick}
                   onRemoveItem={() => onRemoveItem?.(1)}
+                  onEditItem={handleEditItem}
                   containerIndex={1}
                   className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
-                  imageScale={1.3}
                 />
                 {particlePosition && targetContainer === 1 && (
                   <AddItemParticles position={particlePosition} />
@@ -133,11 +144,10 @@ const GiftBasket3D = ({
                   title={spaceLabels?.tertiarySpace || "ESPACE TERTIAIRE"}
                   item={items[2]}
                   onDrop={handleDrop(2)}
-                  onItemClick={handleProductClick}
                   onRemoveItem={() => onRemoveItem?.(2)}
+                  onEditItem={handleEditItem}
                   containerIndex={2}
                   className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
-                  imageScale={1.3}
                 />
                 {particlePosition && targetContainer === 2 && (
                   <AddItemParticles position={particlePosition} />
@@ -153,8 +163,8 @@ const GiftBasket3D = ({
                   title={spaceLabels?.mainSpace || "ESPACE PRINCIPAL"}
                   item={items[index]}
                   onDrop={handleDrop(index)}
-                  onItemClick={handleProductClick}
                   onRemoveItem={() => onRemoveItem?.(index)}
+                  onEditItem={handleEditItem}
                   containerIndex={index}
                   className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
                 />
@@ -176,6 +186,7 @@ const GiftBasket3D = ({
         onSizeSelect={setSelectedSize}
         onPersonalizationChange={setPersonalization}
         onConfirm={handleConfirm}
+        isEditing={editingIndex !== null}
       />
 
       <ProductDetailsDialog

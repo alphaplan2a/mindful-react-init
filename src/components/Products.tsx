@@ -8,6 +8,7 @@ import Categories from "./Categories";
 import { useInView } from "react-intersection-observer";
 import { preloadImage } from "@/utils/imageOptimization";
 
+// Explicitly define constants for product limits
 const PRODUCTS_PER_PAGE = 7;
 const INDEX_PRODUCTS_LIMIT = 7;
 

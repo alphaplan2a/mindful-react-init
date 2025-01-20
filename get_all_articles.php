@@ -27,9 +27,18 @@ try {
 
     $conn->set_charset("utf8mb4");
 
+    // Get the nb_items_passed parameter
+    $nbItemsPassed = isset($_GET['nb_items_passed']) ? (int)$_GET['nb_items_passed'] : null;
+
     // Pagination parameters
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+    
+    // If nb_items_passed is set, override the limit
+    if ($nbItemsPassed !== null) {
+        $limit = $nbItemsPassed;
+    }
+    
     $offset = ($page - 1) * $limit;
 
     // Get total count first

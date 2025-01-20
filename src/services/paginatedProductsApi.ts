@@ -38,6 +38,8 @@ interface PaginatedApiResponse {
     color_product: string;
     createdate_product: string;
   }[];
+  totalPages?: number;
+  currentPage?: number;
 }
 
 export const fetchPaginatedProducts = async (
@@ -50,12 +52,19 @@ export const fetchPaginatedProducts = async (
   currentPage?: number;
 }> => {
   try {
+    console.log('Fetching products with params:', { page, limit, nbItems });
+    
     const url = new URL(`${BASE_URL}/get_all_articles.php`);
+    url.searchParams.append('page', page.toString());
+    url.searchParams.append('limit', limit.toString());
     
     // Only add nb_items_passed if nbItems is provided
     if (nbItems) {
       url.searchParams.append('nb_items_passed', nbItems.toString());
+      console.log('Using nb_items_passed:', nbItems);
     }
+
+    console.log('Final API URL:', url.toString());
 
     const response = await axios.get<PaginatedApiResponse>(url.toString());
     
@@ -82,6 +91,9 @@ export const fetchPaginatedProducts = async (
           relatedProducts: product.related_products,
           colorProduct: product.color_product,
           discount_product: product.discount_product || "",
+          type_product: product.type_product,
+          category_product: product.category_product,
+          itemgroup_product: product.itemgroup_product,
           sizes: {
             s: parseInt(product.s_size) || 0,
             m: parseInt(product.m_size) || 0,
@@ -97,15 +109,14 @@ export const fetchPaginatedProducts = async (
             "58": parseInt(product["58_size"]) || 0,
           },
           quantity: parseInt(product.qnty_product) || 0,
-          type_product: product.type_product,
-          category_product: product.category_product,
-          itemgroup_product: product.itemgroup_product,
         }));
+
+      console.log('Fetched products count:', products.length);
 
       return {
         products,
-        totalPages: Math.ceil(products.length / limit),
-        currentPage: page
+        totalPages: response.data.totalPages,
+        currentPage: response.data.currentPage
       };
     }
     throw new Error(`Failed to fetch products: ${response.data.status}`);

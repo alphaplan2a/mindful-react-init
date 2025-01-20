@@ -48,7 +48,7 @@ const Products = () => {
     queryFn: ({ pageParam = 1 }) => fetchPaginatedProducts(
       pageParam, 
       PRODUCTS_PER_PAGE,
-      INDEX_PRODUCTS_LIMIT // Pass the limit for index page
+      INDEX_PRODUCTS_LIMIT // Always pass INDEX_PRODUCTS_LIMIT for nb_items_passed
     ),
     getNextPageParam: (lastPage) => 
       lastPage.currentPage < (lastPage.totalPages || 0) ? lastPage.currentPage + 1 : undefined,

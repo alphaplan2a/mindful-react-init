@@ -14,6 +14,8 @@ import { getStockForSize } from '@/utils/stockManagement';
 import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/personalizationConfig';
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { calculateFinalPrice } from '@/utils/productStorage';
+import { needsSizeSelection, getDefaultSize } from '@/utils/sizeUtils';
+import { useInView } from 'react-intersection-observer';
 
 interface ProductDetailContainerProps {
   product: Product;
@@ -30,18 +32,18 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
   const [isBoxDialogOpen, setIsBoxDialogOpen] = useState(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const [selectedSize, setSelectedSize] = useState(() => {
-    // Automatically set size to 'unique' for items that don't need size selection
-    return ['cravates', 'portefeuilles'].includes(product.itemgroup_product) ? 'unique' : '';
-  });
+  const [selectedSize, setSelectedSize] = useState(() => getDefaultSize(product.itemgroup_product));
+
+  const getAvailableSizes = () => {
+    const sizeEntries = Object.entries(product.sizes);
+    return sizeEntries
+      .filter(([_, quantity]) => quantity > 0 && quantity !== '')
+      .map(([size]) => size.toUpperCase());
+  };
 
   const canPersonalize = canItemBePersonalized(product.itemgroup_product);
   const personalizationMessage = getPersonalizationMessage(product.itemgroup_product);
-  const needsSizeSelection = !['cravates', 'portefeuilles'].includes(product.itemgroup_product);
-
-  console.log('Product itemgroup:', product.itemgroup_product);
-  console.log('Can personalize:', canPersonalize);
-  console.log('Personalization message:', personalizationMessage);
+  const requiresSizeSelection = needsSizeSelection(product.itemgroup_product);
 
   const productImages = [
     product.image,
@@ -51,7 +53,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
   ].filter(Boolean);
 
   const handleAddToCart = (withBox?: boolean) => {
-    if (!selectedSize && needsSizeSelection) {
+    if (!selectedSize && requiresSizeSelection) {
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner une taille",
@@ -60,11 +62,11 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
       return;
     }
 
-    const availableStock = needsSizeSelection ? getStockForSize(product, selectedSize) : product.quantity;
+    const availableStock = requiresSizeSelection ? getStockForSize(product, selectedSize) : Number(product.quantity);
     if (quantity > availableStock) {
       toast({
         title: "Stock insuffisant",
-        description: needsSizeSelection 
+        description: requiresSizeSelection 
           ? `Il ne reste que ${availableStock} articles en stock pour la taille ${selectedSize}`
           : `Il ne reste que ${availableStock} articles en stock`,
         variant: "destructive",
@@ -126,6 +128,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
               productId={product.id}
               onSave={setPersonalizationText}
               initialText={personalizationText}
+              itemgroup_product={product.itemgroup_product}
             />
           </div>
         )}
@@ -139,12 +142,10 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
         <div className="h-px bg-gray-200" />
 
         <div className="space-y-6">
-          {needsSizeSelection && (
+          {requiresSizeSelection && (
             <SizeSelector
               selectedSize={selectedSize}
-              sizes={Object.entries(product.sizes)
-                .filter(([_, stock]) => stock > 0)
-                .map(([size]) => size)}
+              sizes={getAvailableSizes()}
               onSizeSelect={setSelectedSize}
               isCostume={product.itemgroup_product === 'costumes'}
               itemGroup={product.itemgroup_product}

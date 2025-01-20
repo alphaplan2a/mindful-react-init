@@ -47,7 +47,7 @@ const NewsletterPopup = () => {
         return;
       }
 
-      const response = await axios.post('https://respizenmedical.com/fiori/subscribe_email.php', {
+      const response = await axios.post('https://www.fioriforyou.com/backfiori/subscribe_email.php', {
         email
       });
 

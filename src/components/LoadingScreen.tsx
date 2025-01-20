@@ -22,7 +22,7 @@ const LoadingScreen = memo(({ onLoadingComplete }: LoadingScreenProps) => {
   }, [onLoadingComplete]);
 
   useEffect(() => {
-    const duration = 2500;
+    const duration = 1500;
     const steps = 30;
     const interval = duration / steps;
     let startTime: number;

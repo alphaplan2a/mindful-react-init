@@ -6,6 +6,7 @@ import { Text, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { savePersonalization, getPersonalizations } from '@/utils/personalizationStorage';
 import { useToast } from "@/hooks/use-toast";
+import { getMaxLength } from '@/utils/personalizationConfig';
 
 interface PersonalizationButtonProps {
   productId: number;
@@ -19,7 +20,7 @@ const PersonalizationButton = ({ productId, onSave, initialText = '', itemgroup_
   const [text, setText] = useState(initialText);
   const { toast } = useToast();
 
-  const maxLength = itemgroup_product === 'chemises' ? 4 : 100;
+  const maxLength = getMaxLength(itemgroup_product);
   const remainingChars = maxLength - text.length;
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

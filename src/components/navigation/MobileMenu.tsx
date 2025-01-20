@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { X, MapPin, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SubMenuSectionMobile from './SubMenuSectionMobile';
@@ -23,29 +23,9 @@ const MobileMenu = ({
   onStoreClick,
   onContactClick,
 }: MobileMenuProps) => {
-  const [touchStart, setTouchStart] = React.useState(0);
-  const [touchEnd, setTouchEnd] = React.useState(0);
   const location = useLocation();
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStart - touchEnd > 100) {
-      onClose();
-    }
-    setTouchStart(0);
-    setTouchEnd(0);
-  };
-
   const handleLinkClick = (href: string, callback?: () => void) => {
-    console.log('MobileMenu: Link clicked:', href);
-    // Don't close the menu for /univers-cadeaux
     if (href && href !== "#" && href !== location.pathname && href !== "/univers-cadeaux") {
       if (callback) {
         callback();
@@ -62,10 +42,7 @@ const MobileMenu = ({
           animate={{ x: 0 }}
           exit={{ x: "-100%" }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed top-0 left-0 h-full bg-primary w-[75vw] max-w-[360px] z-50 overflow-hidden"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          className="fixed top-0 left-0 h-full bg-[#700100] w-[75vw] max-w-[360px] z-50 overflow-hidden"
         >
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <h2 className="text-2xl font-semibold text-white tracking-wider">Menu</h2>
@@ -118,6 +95,7 @@ const MobileMenu = ({
                     items={[
                       { href: "/category/pret-a-porter/homme/costumes", title: "Costume", description: "Costumes élégants" },
                       { href: "/category/pret-a-porter/homme/blazers", title: "Blazer", description: "Blazers raffinés" },
+                      { href: "/category/pret-a-porter/homme/vestes", title: "Vestes", description: "Vestes élégantes" },
                       { href: "/category/pret-a-porter/homme/chemises", title: "Chemise", description: "Chemises classiques" },
                       { href: "/category/pret-a-porter/homme/pantalons", title: "Pantalon", description: "Pantalons élégants" },
                       { href: "/category/pret-a-porter/homme/pollo", title: "Polo", description: "Polos élégants" }

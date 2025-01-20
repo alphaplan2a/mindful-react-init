@@ -25,7 +25,8 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
 
-  const maxLength = itemGroup === 'chemises' ? 4 : 100;
+
+  const maxLength = itemGroup.toLowerCase() === 'chemises' ? 4 : 100;
   const remainingChars = maxLength - text.length;
 
   const canPersonalize = canItemBePersonalized(itemGroup);
@@ -47,13 +48,21 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
     const newText = e.target.value;
     if (newText.length <= maxLength) {
       setText(newText);
+    } else {
+      toast({
+        title: "Limite de caractères atteinte",
+        description: itemGroup.toLowerCase() === 'chemises' 
+          ? "La personnalisation est limitée à 4 caractères pour les chemises"
+          : "La personnalisation est limitée à 100 caractères",
+        variant: "destructive",
+      });
     }
   };
 
   const handleSave = () => {
     const trimmedText = text.trim();
     if (trimmedText) {
-      if (itemGroup === 'chemises' && trimmedText.length > 4) {
+      if (itemGroup.toLowerCase() === 'chemises' && trimmedText.length > 4) {
         toast({
           title: "Erreur de personnalisation",
           description: "Pour les chemises, la personnalisation est limitée à 4 caractères maximum",
@@ -98,7 +107,7 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
             </span>
           </div>
           <Textarea
-            placeholder={itemGroup === 'chemises' 
+            placeholder={itemGroup.toLowerCase() === 'chemises' 
               ? "Maximum 4 caractères (ex: IHEB)"
               : "Ajoutez votre texte personnalisé ici..."}
             value={text}
@@ -108,7 +117,7 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
             rows={3}
           />
           <p className="text-xs text-gray-500 italic">
-            {itemGroup === 'chemises' 
+            {itemGroup.toLowerCase() === 'chemises' 
               ? "Pour les chemises, la personnalisation est limitée à 4 caractères"
               : "Maximum 100 caractères"}
           </p>

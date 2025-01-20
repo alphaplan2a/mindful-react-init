@@ -7,8 +7,10 @@ import {
 } from "@/components/ui/dialog";
 import { Product } from '@/types/product';
 import SizeSelector from '../../product-detail/SizeSelector';
-import PersonalizationButton from '../../product-detail/PersonalizationButton';
 import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/personalizationConfig';
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { needsSizeSelection, getDefaultSize } from '@/utils/sizeUtils';
 
 interface AddItemDialogProps {
   open: boolean;
@@ -33,9 +35,9 @@ const AddItemDialog = ({
 }: AddItemDialogProps) => {
   const getAvailableSizes = (product: Product | null): string[] => {
     if (!product || !product.sizes) return [];
-
+    
     // For items that don't need size selection
-    if (['cravates', 'portefeuilles', 'porte-cles'].includes(product.itemgroup_product)) {
+    if (!needsSizeSelection(product.itemgroup_product)) {
       // Automatically select a default size
       if (!selectedSize) {
         onSizeSelect('unique');
@@ -55,13 +57,31 @@ const AddItemDialog = ({
   const availableSizes = getAvailableSizes(droppedItem);
   const canPersonalize = droppedItem ? canItemBePersonalized(droppedItem.itemgroup_product) : false;
   const personalizationMessage = droppedItem ? getPersonalizationMessage(droppedItem.itemgroup_product) : undefined;
-  const needsSizeSelection = droppedItem ? !['cravates', 'portefeuilles', 'porte-cles'].includes(droppedItem.itemgroup_product) : false;
-  const isNoSizeItem = droppedItem ? ['portefeuilles', 'cravates', 'porte-cles'].includes(droppedItem.itemgroup_product) : false;
+  const requiresSizeSelection = droppedItem ? needsSizeSelection(droppedItem.itemgroup_product) : false;
+  const isChemise = droppedItem?.itemgroup_product === 'chemises';
+  const maxLength = isChemise ? 4 : 100;
+  const remainingChars = maxLength - (personalization?.length || 0);
+
+  const handlePersonalizationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+    if (newText.length <= maxLength) {
+      onPersonalizationChange(newText);
+    } else {
+      toast({
+        title: "Limite de caractères atteinte",
+        description: isChemise 
+          ? "La personnalisation est limitée à 4 caractères pour les chemises"
+          : "La personnalisation est limitée à 100 caractères",
+        variant: "destructive",
+      });
+    }
+  };
 
   const canConfirm = () => {
-    if (isNoSizeItem) return true;
-    if (needsSizeSelection && !selectedSize) return false;
-    if (needsSizeSelection && availableSizes.length === 0) return false;
+    if (!requiresSizeSelection) return true;
+    if (requiresSizeSelection && !selectedSize) return false;
+    if (requiresSizeSelection && availableSizes.length === 0) return false;
+    if (isChemise && personalization && personalization.length > 4) return false;
     return true;
   };
 
@@ -70,11 +90,11 @@ const AddItemDialog = ({
       <DialogContent className="sm:max-w-[500px] bg-white/95">
         <DialogHeader>
           <DialogTitle className="text-xl font-serif text-[#6D0201] mb-4">
-            {needsSizeSelection ? 'Personnalisez votre article' : 'Confirmer la sélection'}
+            {requiresSizeSelection ? 'Personnalisez votre article' : 'Confirmer la sélection'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          {needsSizeSelection && availableSizes.length > 0 && (
+          {requiresSizeSelection && availableSizes.length > 0 && (
             <SizeSelector
               selectedSize={selectedSize}
               sizes={availableSizes}
@@ -84,14 +104,31 @@ const AddItemDialog = ({
           )}
           
           {canPersonalize && (
-            <PersonalizationButton
-              productId={droppedItem?.id || 0}
-              onSave={onPersonalizationChange}
-              initialText={personalization}
-            />
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-gray-700">Votre texte de personnalisation</label>
+                <span className={`text-sm ${remainingChars === 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                  {remainingChars} caractères restants
+                </span>
+              </div>
+              <Textarea
+                placeholder={isChemise 
+                  ? "Maximum 4 caractères (ex: IHEB)"
+                  : "Ajoutez votre texte personnalisé ici..."}
+                value={personalization}
+                onChange={handlePersonalizationChange}
+                maxLength={maxLength}
+                className="min-h-[120px] p-4 text-gray-800 bg-gray-50 border-2 border-gray-200 focus:border-[#700100] focus:ring-[#700100] rounded-lg resize-none transition-all duration-300"
+              />
+              <p className="text-sm text-gray-500 italic">
+                {isChemise 
+                  ? "Pour les chemises, la personnalisation est limitée à 4 caractères"
+                  : "Maximum 100 caractères"}
+              </p>
+            </div>
           )}
 
-          {needsSizeSelection && availableSizes.length === 0 && !isNoSizeItem && (
+          {requiresSizeSelection && availableSizes.length === 0 && (
             <p className="text-red-500">Aucune taille disponible pour ce produit</p>
           )}
 

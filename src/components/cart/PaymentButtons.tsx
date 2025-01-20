@@ -16,7 +16,7 @@ interface PaymentButtonsProps {
 }
 
 // Set to true to use real payment processing
-const BYPASS_PAYMENT = true;
+const BYPASS_PAYMENT = false;
 
 const PaymentButtons = ({ 
   enabled, 
@@ -49,11 +49,8 @@ const PaymentButtons = ({
 
     try {
       const orderId = `ORDER-${Date.now()}`;
-      // Set payment initiation timestamp
-      sessionStorage.setItem('paymentInitiated', Date.now().toString());
 
       if (BYPASS_PAYMENT) {
-        console.log('Payment bypassed for testing - simulating successful payment');
         await new Promise(resolve => setTimeout(resolve, 500)); // Reduced timeout
 
         sessionStorage.setItem('pendingOrder', JSON.stringify({
@@ -89,7 +86,6 @@ const PaymentButtons = ({
       }
     } catch (error: any) {
       console.error('Payment error:', error);
-      sessionStorage.removeItem('paymentInitiated');
       
       let errorMessage = "Une erreur s'est produite lors de l'initialisation du paiement.";
       if (error.message.includes('Invalid amount')) {

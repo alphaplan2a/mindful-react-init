@@ -71,16 +71,16 @@ const GiftApp = () => {
         });
       }
 
+      // Add all items synchronously to prevent race conditionsnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
       selectedItems.forEach(item => {
         const itemToAdd = {
           ...item,
           quantity: 1,
-          personalization: "-", // Force personalization to "-" for pack items
+          personalization: item.personalization || '-',
           pack: packType,
           size: item.size || '-',
           color: item.color || '-',
-          fromPack: true,
-          itemgroup_product: item.itemgroup_product || "Pack"
+          fromPack: true
         };
         addToCart(itemToAdd);
       });
@@ -97,6 +97,7 @@ const GiftApp = () => {
         },
       });
 
+      // Immediate navigation to cart
       navigate('/cart');
     } catch (error) {
       console.error('Error adding pack to cart:', error);
@@ -110,6 +111,58 @@ const GiftApp = () => {
       setIsSubmitting(false);
     }
   }, [isSubmitting, selectedItems, containerCount, packType, addToCart, navigate]);
+
+  const handleItemDrop = (item: Product, size: string, personalization: string) => {
+    
+    if (selectedItems.length >= containerCount) {
+      toast({
+        title: "Pack complet",
+        description: `Ce pack ne peut contenir que ${containerCount} articles`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const itemWithDetails = {
+      ...item,
+      fromPack: true,
+      pack: packType,
+      size: size,
+      personalization: personalization || '-'
+    };
+
+    setSelectedItems((prev) => [...prev, itemWithDetails]);
+    playTickSound();
+    
+    toast({
+      title: "Article Ajouté! 🎁",
+      description: "N'oubliez pas que vous pouvez ajouter un message personnalisé à votre pack!",
+      style: {
+        backgroundColor: '#700100',
+        color: 'white',
+        border: '1px solid #590000',
+      },
+    });
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setSelectedItems(prev => {
+      const newItems = [...prev];
+      newItems.splice(index, 1);
+      return newItems;
+    });
+    
+    toast({
+      title: "Article Retiré",
+      description: "L'article a été retiré de votre pack",
+      style: {
+        backgroundColor: '#700100',
+        color: 'white',
+        border: '1px solid #590000',
+      },
+    });
+    playTickSound();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b bg-[#f6f7f9] py-16 px-4 md:px-8">
@@ -145,6 +198,8 @@ const GiftApp = () => {
             <ConfirmationButton
               onConfirm={handleConfirmPack}
               disabled={selectedItems.length === 0 || isSubmitting}
+              packType={packType}
+              selectedItemsCount={selectedItems.length}
             />
           </div>
         </div>

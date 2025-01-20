@@ -63,20 +63,15 @@ const ProductDetailPage = () => {
         onProductAdded={handleProductAdded}
       />
       
-      {relatedProductsList.length > 0 && (
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-16 mb-8"
-        >
-          <h2 className="text-2xl font-['WomanFontBold'] text-[#700100] mb-8">
-            Produits similaires
-          </h2>
-          <RelatedProducts products={relatedProductsList} />
-        </motion.section>
-      )}
-
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-8 mb-8"
+      >
+        <RelatedProducts currentProduct={product} />
+      </motion.section>
+      
       <CheckoutConfirmationModal
         isOpen={showCheckoutModal}
         onClose={() => setShowCheckoutModal(false)}

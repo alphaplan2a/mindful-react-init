@@ -3,7 +3,7 @@ import { Product } from '../types/product';
 
 const BASE_URL = 'https://www.fioriforyou.com/backfiori';
 
-interface ApiResponse {
+interface PaginatedApiResponse {
   status: string;
   count: number;
   products: {
@@ -40,14 +40,28 @@ interface ApiResponse {
   }[];
 }
 
-export const fetchAllProducts = async (): Promise<Product[]> => {
+export const fetchPaginatedProducts = async (
+  page: number = 1, 
+  limit: number = 10,
+  nbItems?: number
+): Promise<{
+  products: Product[];
+  totalPages?: number;
+  currentPage?: number;
+}> => {
   try {
-    const response = await axios.get<ApiResponse>(`${BASE_URL}/get_all_articles.php`);
+    const url = new URL(`${BASE_URL}/get_all_articles.php`);
+    
+    // Only add nb_items_passed if nbItems is provided
+    if (nbItems) {
+      url.searchParams.append('nb_items_passed', nbItems.toString());
+    }
+
+    const response = await axios.get<PaginatedApiResponse>(url.toString());
     
     if (response.data.status === 'success') {
-      return response.data.products
+      const products = response.data.products
         .filter(product => 
-          // Filter out products with zero or invalid quantity
           product.qnty_product !== "0" && 
           parseInt(product.qnty_product) > 0
         )
@@ -87,6 +101,12 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
           category_product: product.category_product,
           itemgroup_product: product.itemgroup_product,
         }));
+
+      return {
+        products,
+        totalPages: Math.ceil(products.length / limit),
+        currentPage: page
+      };
     }
     throw new Error(`Failed to fetch products: ${response.data.status}`);
   } catch (error) {

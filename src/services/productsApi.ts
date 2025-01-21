@@ -41,11 +41,14 @@ const transformProductData = (productData: any, baseUrl: string): Product => ({
 
 export const fetchAllProducts = async (): Promise<Product[]> => {
   try {
+    console.log('Fetching all products...');
     const timestamp = new Date().getTime();
     const response = await axios.get(`${API_ENDPOINTS.getArticles}?timestamp=${timestamp}`);
     const baseUrl = new URL(API_ENDPOINTS.getArticles).origin;
 
-    if (response.data.status === 'success') {
+    console.log('API Response:', response.data);
+
+    if (response.data.status === 'success' && Array.isArray(response.data.products)) {
       return response.data.products
         .filter(product => product.qnty_product !== "0" && parseInt(product.qnty_product) > 0)
         .map(product => transformProductData(product, baseUrl));
@@ -60,17 +63,21 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
 
 export const fetchSingleProduct = async (productId: number): Promise<Product> => {
   try {
+    console.log(`Fetching single product with ID: ${productId}`);
     const timestamp = new Date().getTime();
     const response = await axios.get(
       `${API_ENDPOINTS.getArticles}?id_product=${productId}&timestamp=${timestamp}`
     );
     const baseUrl = new URL(API_ENDPOINTS.getArticles).origin;
 
-    if (response.data.status === 'success' && response.data.product) {
-      return transformProductData(response.data.product, baseUrl);
+    console.log('Single product API Response:', response.data);
+
+    if (response.data.status === 'success' && Array.isArray(response.data.products) && response.data.products.length > 0) {
+      const product = response.data.products[0];
+      return transformProductData(product, baseUrl);
     }
 
-    throw new Error(`Failed to fetch product: ${response.data.status}`);
+    throw new Error(`Product not found with ID: ${productId}`);
   } catch (error) {
     console.error('Error fetching single product:', error);
     throw error;

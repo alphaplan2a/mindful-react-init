@@ -6,7 +6,7 @@ import { fetchPaginatedProducts } from "../services/paginatedProductsApi";
 import ProductCard from "./ProductCard";
 import Categories from "./Categories";
 import { useInView } from "react-intersection-observer";
-import { preloadImage } from "@/utils/imageOptimization";
+import { preloadImage, optimizeImageUrl } from "@/utils/imageOptimization";
 
 // Explicitly define constants for product limits
 const PRODUCTS_PER_PAGE = 7;
@@ -16,7 +16,8 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 0.1,
-    triggerOnce: false
+    triggerOnce: false,
+    rootMargin: '100px' // Increased root margin for earlier loading
   });
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -48,7 +49,7 @@ const Products = () => {
     queryFn: ({ pageParam = 1 }) => fetchPaginatedProducts(
       pageParam, 
       PRODUCTS_PER_PAGE,
-      INDEX_PRODUCTS_LIMIT // Always pass INDEX_PRODUCTS_LIMIT for nb_items_passed
+      INDEX_PRODUCTS_LIMIT
     ),
     getNextPageParam: (lastPage) => 
       lastPage.currentPage < (lastPage.totalPages || 0) ? lastPage.currentPage + 1 : undefined,
@@ -57,13 +58,18 @@ const Products = () => {
     gcTime: 10 * 60 * 1000,
   });
 
-  // Preload next page images
+  // Preload next page images with lower quality for faster loading
   useEffect(() => {
     if (data?.pages) {
       const nextPageProducts = data.pages[data.pages.length - 1]?.products || [];
       nextPageProducts.forEach(product => {
         if (product.image) {
-          preloadImage(product.image);
+          // Preload thumbnail version first
+          preloadImage(product.image, 160, 'thumbnail');
+          // Then preload preview version
+          setTimeout(() => {
+            preloadImage(product.image, 400, 'preview');
+          }, 1000);
         }
       });
     }

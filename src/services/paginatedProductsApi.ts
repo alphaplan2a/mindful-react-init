@@ -43,9 +43,9 @@ interface PaginatedApiResponse {
 }
 
 export const fetchPaginatedProducts = async (
-  page: number = 1, 
+  page: number = 1,
   limit: number = 10,
-  nbItems?: number
+  nbItems: number = 10
 ): Promise<{
   products: Product[];
   totalPages?: number;
@@ -53,37 +53,29 @@ export const fetchPaginatedProducts = async (
 }> => {
   try {
     console.log('Fetching products with params:', { page, limit, nbItems });
-    
+
     const url = new URL(`${BASE_URL}/get_all_articles.php`);
     url.searchParams.append('page', page.toString());
     url.searchParams.append('limit', limit.toString());
-    
-    // Only add nb_items_passed if nbItems is provided
-    if (nbItems) {
-      url.searchParams.append('nb_items_passed', nbItems.toString());
-      console.log('Using nb_items_passed:', nbItems);
-    }
+    url.searchParams.append('nb_items_passed', nbItems.toString());
 
     console.log('Final API URL:', url.toString());
 
     const response = await axios.get<PaginatedApiResponse>(url.toString());
-    
+
     if (response.data.status === 'success') {
       const products = response.data.products
-        .filter(product => 
-          product.qnty_product !== "0" && 
-          parseInt(product.qnty_product) > 0
-        )
+        .filter(product => product.qnty_product !== "0" && parseInt(product.qnty_product) > 0)
         .map(product => ({
           id: parseInt(product.id_product),
           name: product.nom_product,
           material: product.type_product,
           color: product.color_product,
           price: parseFloat(product.price_product) || 0.0,
-          image: `${BASE_URL}/${product.img_product}`,
-          image2: product.img2_product ? `${BASE_URL}/${product.img2_product}` : undefined,
-          image3: product.img3_product ? `${BASE_URL}/${product.img3_product}` : undefined,
-          image4: product.img4_product ? `${BASE_URL}/${product.img4_product}` : undefined,
+          image: `${BASE_URL}/${product.img_product}?format=webp&quality=60`,
+          image2: product.img2_product ? `${BASE_URL}/${product.img2_product}?format=webp&quality=60` : undefined,
+          image3: product.img3_product ? `${BASE_URL}/${product.img3_product}?format=webp&quality=60` : undefined,
+          image4: product.img4_product ? `${BASE_URL}/${product.img4_product}?format=webp&quality=60` : undefined,
           description: product.description_product,
           status: product.status_product,
           reference: product.reference_product,

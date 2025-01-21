@@ -5,11 +5,11 @@ export interface PackPrice {
 
 export const packPrices: Record<string, PackPrice> = {
   'Pack Prestige': {
-    price: 50,
+    price: 0,
     image: '/BoxToSelected.png'
   },
   'Pack Premium': {
-    price: 30,
+    price: 0,
     image: '/BoxToSelected.png'
   },
   'Pack Trio': {
@@ -17,7 +17,7 @@ export const packPrices: Record<string, PackPrice> = {
     image: '/BoxToSelected.png'
   },
   'Pack Duo': {
-    price: 20,
+    price: 0,
     image: '/BoxToSelected.png'
   },
   'Pack Mini Duo': {

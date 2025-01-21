@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
 import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
 import { PenLine } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
+import { optimizeImageUrl, generateSrcSet } from '@/utils/imageOptimization';
 
 interface ProductCardProps {
   product: Product;
@@ -14,7 +15,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const { ref, inView } = useInView({
     triggerOnce: true,
-    threshold: 0.1
+    threshold: 0.1,
+    rootMargin: '50px'
   });
   
   const hasDiscount = product.discount_product !== "" && 
@@ -31,7 +33,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <div 
       ref={ref}
-      className="h-full hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+      className="h-full hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-white rounded-lg"
       onClick={() => navigate(`/product/${product.id}`)}
     >
       <div className="h-[300px] bg-transparent overflow-hidden mb-3 relative">
@@ -42,17 +44,27 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}
         <div className={`w-full h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}>
           {inView && (
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-contain mix-blend-normal"
-              loading="lazy"
-              decoding="async"
-              fetchPriority="auto"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageLoaded(true)}
-            />
+            <>
+              {/* Low quality placeholder */}
+              <img
+                src={optimizeImageUrl(product.image, 50, 'thumbnail')}
+                alt=""
+                className="absolute inset-0 w-full h-full object-contain blur-lg scale-110"
+                style={{ opacity: imageLoaded ? 0 : 0.5 }}
+              />
+              {/* Main image */}
+              <img
+                src={optimizeImageUrl(product.image, 400, 'preview')}
+                srcSet={generateSrcSet(product.image, 'preview')}
+                alt={product.name}
+                className="w-full h-full object-contain mix-blend-normal relative z-10"
+                loading="lazy"
+                decoding="async"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+              />
+            </>
           )}
           {(!imageLoaded || !inView) && (
             <div className="absolute inset-0 bg-gray-100 animate-pulse" />

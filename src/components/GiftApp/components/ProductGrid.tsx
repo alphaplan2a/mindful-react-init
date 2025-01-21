@@ -37,11 +37,17 @@ const ProductItem = ({
     ? calculateDiscountedPrice(product.price, product.discount_product)
     : product.price;
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!isMobile) {
+      onDragStart(e, product);
+    }
+  };
+
   return (
     <motion.div
       ref={ref}
       draggable={!isMobile}
-      onDragStart={(e) => onDragStart(e, product)}
+      onDragStart={handleDragStart}
       onClick={onClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

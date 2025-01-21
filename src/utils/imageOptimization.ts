@@ -1,6 +1,3 @@
-const imageCache = new Map<string, HTMLImageElement>();
-const videoCache = new Map<string, HTMLVideoElement>();
-
 // Quality levels for different image sizes - reduced for faster loading
 const QUALITY_LEVELS = {
   thumbnail: 30,  // Very low quality for thumbnails (reduced from 40)
@@ -27,10 +24,6 @@ export const optimizeImageUrl = (url: string, width: number = 800, quality?: 'th
 };
 
 export const preloadVideo = (src: string): Promise<void> => {
-  if (videoCache.has(src)) {
-    return Promise.resolve();
-  }
-
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
     
@@ -39,7 +32,6 @@ export const preloadVideo = (src: string): Promise<void> => {
     video.playsInline = true;
     
     video.onloadeddata = () => {
-      videoCache.set(src, video);
       resolve();
     };
     video.onerror = reject;
@@ -51,15 +43,10 @@ export const preloadVideo = (src: string): Promise<void> => {
 export const preloadImage = (src: string, width: number = 800, quality?: 'thumbnail' | 'preview' | 'full'): Promise<void> => {
   const optimizedSrc = optimizeImageUrl(src, width, quality);
   
-  if (imageCache.has(optimizedSrc)) {
-    return Promise.resolve();
-  }
-
   return new Promise((resolve, reject) => {
     const img = new Image();
     
     img.onload = () => {
-      imageCache.set(optimizedSrc, img);
       resolve();
     };
     img.onerror = reject;
@@ -78,14 +65,4 @@ export const generateSrcSet = (src: string, quality?: 'thumbnail' | 'preview' | 
   return sizes
     .map(size => `${optimizeImageUrl(src, size, quality)} ${size}w`)
     .join(', ');
-};
-
-// Clear cache when it gets too large
-export const clearImageCache = () => {
-  if (imageCache.size > 100) {
-    imageCache.clear();
-  }
-  if (videoCache.size > 20) {
-    videoCache.clear();
-  }
 };

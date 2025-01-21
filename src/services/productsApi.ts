@@ -1,60 +1,17 @@
 import axios from 'axios';
 import { Product } from '../types/product';
+import { API_ENDPOINTS } from '../config/apiConfig';
 
-const BASE_URL = 'https://www.fioriforyou.com/backfiori';
-
-interface ApiResponse {
-  status: string;
-  count: number;
-  products: {
-    id_product: string;
-    reference_product: string;
-    nom_product: string;
-    img_product: string;
-    img2_product?: string;
-    img3_product?: string;
-    img4_product?: string;
-    description_product: string;
-    type_product: string;
-    category_product: string;
-    itemgroup_product: string;
-    price_product: string;
-    qnty_product: string;
-    "3xl_size": string;
-    s_size: string;
-    m_size: string;
-    l_size: string;
-    xl_size: string;
-    xxl_size: string;
-    "48_size": string;
-    "50_size": string;
-    "52_size": string;
-    "54_size": string;
-    "56_size": string;
-    "58_size": string;
-    status_product: string;
-    discount_product: string;
-    related_products: string;
-    color_product: string;
-    createdate_product: string;
-  }[];
-}
-
-interface SingleProductResponse {
-  status: string;
-  product: ApiResponse['products'][0];
-}
-
-const transformProductData = (productData: ApiResponse['products'][0]): Product => ({
+const transformProductData = (productData: any, baseUrl: string): Product => ({
   id: parseInt(productData.id_product),
   name: productData.nom_product,
   material: productData.type_product,
   color: productData.color_product,
   price: parseFloat(productData.price_product) || 0.0,
-  image: `${BASE_URL}/${productData.img_product}?format=webp&quality=70`,
-  image2: productData.img2_product ? `${BASE_URL}/${productData.img2_product}?format=webp&quality=70` : undefined,
-  image3: productData.img3_product ? `${BASE_URL}/${productData.img3_product}?format=webp&quality=70` : undefined,
-  image4: productData.img4_product ? `${BASE_URL}/${productData.img4_product}?format=webp&quality=70` : undefined,
+  image: `${baseUrl}/${productData.img_product}?format=webp&quality=70`,
+  image2: productData.img2_product ? `${baseUrl}/${productData.img2_product}?format=webp&quality=70` : undefined,
+  image3: productData.img3_product ? `${baseUrl}/${productData.img3_product}?format=webp&quality=70` : undefined,
+  image4: productData.img4_product ? `${baseUrl}/${productData.img4_product}?format=webp&quality=70` : undefined,
   description: productData.description_product,
   status: productData.status_product,
   reference: productData.reference_product,
@@ -84,13 +41,14 @@ const transformProductData = (productData: ApiResponse['products'][0]): Product 
 
 export const fetchAllProducts = async (): Promise<Product[]> => {
   try {
-    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-    const response = await axios.get<ApiResponse>(`${BASE_URL}/get_all_articles.php?timestamp=${timestamp}`);
+    const timestamp = new Date().getTime();
+    const response = await axios.get(`${API_ENDPOINTS.getArticles}?timestamp=${timestamp}`);
+    const baseUrl = new URL(API_ENDPOINTS.getArticles).origin;
 
     if (response.data.status === 'success') {
       return response.data.products
         .filter(product => product.qnty_product !== "0" && parseInt(product.qnty_product) > 0)
-        .map(transformProductData);
+        .map(product => transformProductData(product, baseUrl));
     }
 
     throw new Error(`Failed to fetch products: ${response.data.status}`);
@@ -102,13 +60,14 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
 
 export const fetchSingleProduct = async (productId: number): Promise<Product> => {
   try {
-    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-    const response = await axios.get<SingleProductResponse>(
-      `${BASE_URL}/get_single_product.php?id_product=${productId}&timestamp=${timestamp}`
+    const timestamp = new Date().getTime();
+    const response = await axios.get(
+      `${API_ENDPOINTS.getArticles}?id_product=${productId}&timestamp=${timestamp}`
     );
+    const baseUrl = new URL(API_ENDPOINTS.getArticles).origin;
 
     if (response.data.status === 'success' && response.data.product) {
-      return transformProductData(response.data.product);
+      return transformProductData(response.data.product, baseUrl);
     }
 
     throw new Error(`Failed to fetch product: ${response.data.status}`);

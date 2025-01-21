@@ -13,7 +13,7 @@ export const API_ENDPOINTS = {
   getArticles: generateApiUrl('get_all_articles.php'),
 };
 
-// Konnect API configuration 
+// Konnect API configuration
 export const KONNECT_CONFIG = {
   apiUrl: atob('aHR0cHM6Ly9hcGkua29ubmVjdC5uZXR3b3JrL2FwaS92Mg=='),
   apiKey: atob('NjU3YWYxOTMwYmVmOGJkZmQwNDViM2EzOlNHZkFaU1d1RXRRY1BiVVUySTVoWHNPSw=='),

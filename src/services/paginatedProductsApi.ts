@@ -1,6 +1,46 @@
 import axios from 'axios';
 import { Product } from '../types/product';
-import { API_ENDPOINTS } from '../config/apiConfig';
+
+const BASE_URL = 'https://www.fioriforyou.com/backfiori';
+
+interface PaginatedApiResponse {
+  status: string;
+  count: number;
+  products: {
+    id_product: string;
+    reference_product: string;
+    nom_product: string;
+    img_product: string;
+    img2_product?: string;
+    img3_product?: string;
+    img4_product?: string;
+    description_product: string;
+    type_product: string;
+    category_product: string;
+    itemgroup_product: string;
+    price_product: string;
+    qnty_product: string;
+    "3xl_size": string;
+    s_size: string;
+    m_size: string;
+    l_size: string;
+    xl_size: string;
+    xxl_size: string;
+    "48_size": string;
+    "50_size": string;
+    "52_size": string;
+    "54_size": string;
+    "56_size": string;
+    "58_size": string;
+    status_product: string;
+    discount_product: string;
+    related_products: string;
+    color_product: string;
+    createdate_product: string;
+  }[];
+  totalPages?: number;
+  currentPage?: number;
+}
 
 export const fetchPaginatedProducts = async (
   page: number = 1,
@@ -14,14 +54,14 @@ export const fetchPaginatedProducts = async (
   try {
     console.log('Fetching products with params:', { page, limit, nbItems });
 
-    const url = new URL(API_ENDPOINTS.getArticles);
+    const url = new URL(`${BASE_URL}/get_all_articles.php`);
     url.searchParams.append('page', page.toString());
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('nb_items_passed', nbItems.toString());
 
     console.log('Final API URL:', url.toString());
 
-    const response = await axios.get(url.toString());
+    const response = await axios.get<PaginatedApiResponse>(url.toString());
 
     if (response.data.status === 'success') {
       const products = response.data.products
@@ -32,10 +72,10 @@ export const fetchPaginatedProducts = async (
           material: product.type_product,
           color: product.color_product,
           price: parseFloat(product.price_product) || 0.0,
-          image: `${url.origin}/${product.img_product}?format=webp&quality=60`,
-          image2: product.img2_product ? `${url.origin}/${product.img2_product}?format=webp&quality=60` : undefined,
-          image3: product.img3_product ? `${url.origin}/${product.img3_product}?format=webp&quality=60` : undefined,
-          image4: product.img4_product ? `${url.origin}/${product.img4_product}?format=webp&quality=60` : undefined,
+          image: `${BASE_URL}/${product.img_product}?format=webp&quality=60`,
+          image2: product.img2_product ? `${BASE_URL}/${product.img2_product}?format=webp&quality=60` : undefined,
+          image3: product.img3_product ? `${BASE_URL}/${product.img3_product}?format=webp&quality=60` : undefined,
+          image4: product.img4_product ? `${BASE_URL}/${product.img4_product}?format=webp&quality=60` : undefined,
           description: product.description_product,
           status: product.status_product,
           reference: product.reference_product,

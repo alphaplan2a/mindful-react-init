@@ -1,17 +1,60 @@
 import axios from 'axios';
 import { Product } from '../types/product';
-import { API_ENDPOINTS } from '../config/apiConfig';
 
-const transformProductData = (productData: any, baseUrl: string): Product => ({
+const BASE_URL = 'https://www.fioriforyou.com/backfiori';
+
+interface ApiResponse {
+  status: string;
+  count: number;
+  products: {
+    id_product: string;
+    reference_product: string;
+    nom_product: string;
+    img_product: string;
+    img2_product?: string;
+    img3_product?: string;
+    img4_product?: string;
+    description_product: string;
+    type_product: string;
+    category_product: string;
+    itemgroup_product: string;
+    price_product: string;
+    qnty_product: string;
+    "3xl_size": string;
+    s_size: string;
+    m_size: string;
+    l_size: string;
+    xl_size: string;
+    xxl_size: string;
+    "48_size": string;
+    "50_size": string;
+    "52_size": string;
+    "54_size": string;
+    "56_size": string;
+    "58_size": string;
+    status_product: string;
+    discount_product: string;
+    related_products: string;
+    color_product: string;
+    createdate_product: string;
+  }[];
+}
+
+interface SingleProductResponse {
+  status: string;
+  product: ApiResponse['products'][0];
+}
+
+const transformProductData = (productData: ApiResponse['products'][0]): Product => ({
   id: parseInt(productData.id_product),
   name: productData.nom_product,
   material: productData.type_product,
   color: productData.color_product,
   price: parseFloat(productData.price_product) || 0.0,
-  image: `${baseUrl}/${productData.img_product}?format=webp&quality=70`,
-  image2: productData.img2_product ? `${baseUrl}/${productData.img2_product}?format=webp&quality=70` : undefined,
-  image3: productData.img3_product ? `${baseUrl}/${productData.img3_product}?format=webp&quality=70` : undefined,
-  image4: productData.img4_product ? `${baseUrl}/${productData.img4_product}?format=webp&quality=70` : undefined,
+  image: `${BASE_URL}/${productData.img_product}?format=webp&quality=70`,
+  image2: productData.img2_product ? `${BASE_URL}/${productData.img2_product}?format=webp&quality=70` : undefined,
+  image3: productData.img3_product ? `${BASE_URL}/${productData.img3_product}?format=webp&quality=70` : undefined,
+  image4: productData.img4_product ? `${BASE_URL}/${productData.img4_product}?format=webp&quality=70` : undefined,
   description: productData.description_product,
   status: productData.status_product,
   reference: productData.reference_product,
@@ -41,17 +84,13 @@ const transformProductData = (productData: any, baseUrl: string): Product => ({
 
 export const fetchAllProducts = async (): Promise<Product[]> => {
   try {
-    console.log('Fetching all products...');
-    const timestamp = new Date().getTime();
-    const response = await axios.get(`${API_ENDPOINTS.getArticles}?timestamp=${timestamp}`);
-    const baseUrl = new URL(API_ENDPOINTS.getArticles).origin;
+    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+    const response = await axios.get<ApiResponse>(`${BASE_URL}/get_all_articles.php?timestamp=${timestamp}`);
 
-    console.log('API Response:', response.data);
-
-    if (response.data.status === 'success' && Array.isArray(response.data.products)) {
+    if (response.data.status === 'success') {
       return response.data.products
         .filter(product => product.qnty_product !== "0" && parseInt(product.qnty_product) > 0)
-        .map(product => transformProductData(product, baseUrl));
+        .map(transformProductData);
     }
 
     throw new Error(`Failed to fetch products: ${response.data.status}`);
@@ -63,21 +102,16 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
 
 export const fetchSingleProduct = async (productId: number): Promise<Product> => {
   try {
-    console.log(`Fetching single product with ID: ${productId}`);
-    const timestamp = new Date().getTime();
-    const response = await axios.get(
-      `${API_ENDPOINTS.getArticles}?id_product=${productId}&timestamp=${timestamp}`
+    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+    const response = await axios.get<SingleProductResponse>(
+      `${BASE_URL}/get_single_product.php?id_product=${productId}&timestamp=${timestamp}`
     );
-    const baseUrl = new URL(API_ENDPOINTS.getArticles).origin;
 
-    console.log('Single product API Response:', response.data);
-
-    if (response.data.status === 'success' && Array.isArray(response.data.products) && response.data.products.length > 0) {
-      const product = response.data.products[0];
-      return transformProductData(product, baseUrl);
+    if (response.data.status === 'success' && response.data.product) {
+      return transformProductData(response.data.product);
     }
 
-    throw new Error(`Product not found with ID: ${productId}`);
+    throw new Error(`Failed to fetch product: ${response.data.status}`);
   } catch (error) {
     console.error('Error fetching single product:', error);
     throw error;

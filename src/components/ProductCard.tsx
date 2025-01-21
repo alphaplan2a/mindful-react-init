@@ -4,7 +4,6 @@ import { Product } from '../types/product';
 import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
 import { PenLine } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
-import { optimizeImageUrl, generateSrcSet } from '@/utils/imageOptimization';
 
 interface ProductCardProps {
   product: Product;
@@ -30,6 +29,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
     product.personalization ? true : false
   );
 
+  // Generate optimized image URLs with very low initial quality
+  const thumbnailUrl = `${product.image}?w=50&q=10`;
+  const fullImageUrl = `${product.image}?w=400&q=60`;
+
   return (
     <div 
       ref={ref}
@@ -45,22 +48,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <div className={`w-full h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}>
           {inView && (
             <>
-              {/* Low quality placeholder */}
+              {/* Extremely low quality placeholder */}
               <img
-                src={optimizeImageUrl(product.image, 50, 'thumbnail')}
+                src={thumbnailUrl}
                 alt=""
                 className="absolute inset-0 w-full h-full object-contain blur-lg scale-110"
                 style={{ opacity: imageLoaded ? 0 : 0.5 }}
               />
-              {/* Main image */}
+              {/* Main image - load only when in viewport */}
               <img
-                src={optimizeImageUrl(product.image, 400, 'preview')}
-                srcSet={generateSrcSet(product.image, 'preview')}
+                src={fullImageUrl}
                 alt={product.name}
                 className="w-full h-full object-contain mix-blend-normal relative z-10"
                 loading="lazy"
                 decoding="async"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => setImageLoaded(true)}
               />

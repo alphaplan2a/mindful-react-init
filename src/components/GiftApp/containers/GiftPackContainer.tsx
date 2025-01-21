@@ -50,6 +50,9 @@ const GiftPackContainer = ({
     }
   };
 
+  // Generate optimized image URL with moderate quality
+  const optimizedImageUrl = item ? `${item.image}?w=300&q=60` : '';
+
   return (
     <div
       onDrop={handleDrop}
@@ -79,10 +82,11 @@ const GiftPackContainer = ({
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative w-[90%] h-[90%] p-2 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg border border-gray-800/30 transition-all duration-300 group-hover:shadow-xl">
                 <img
-                  src={item.image}
+                  src={optimizedImageUrl}
                   alt={item.name}
                   className={`w-full h-full object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg transform scale-${imageScale}`}
                   style={{ transform: `scale(${imageScale})` }}
+                  loading="lazy"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/80 backdrop-blur-sm rounded-b-lg">
                   <p className="text-xs font-medium text-white truncate text-center mb-0.5">

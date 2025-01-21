@@ -43,16 +43,15 @@ const ProductItem = ({
     }
   };
 
+  // Generate optimized image URL with low quality
+  const optimizedImageUrl = `${product.image}?w=200&q=60`;
+
   return (
-    <motion.div
+    <div
       ref={ref}
       draggable={!isMobile}
       onDragStart={handleDragStart}
       onClick={onClick}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.2 }}
       className={`bg-white rounded-lg shadow-sm p-4 border border-gray-100/50 hover:shadow-md transition-all ${
         isMobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'
       }`}
@@ -62,7 +61,7 @@ const ProductItem = ({
         <div className="relative w-full h-24 mb-2">
           {inView && (
             <img
-              src={product.image}
+              src={optimizedImageUrl}
               alt={product.name}
               className={`w-full h-full object-contain transition-opacity duration-300 ${
                 isImageLoaded ? 'opacity-100' : 'opacity-0'
@@ -95,7 +94,7 @@ const ProductItem = ({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

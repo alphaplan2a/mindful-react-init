@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Canvas, Text } from "fabric";
 import { Card } from "@/components/ui/card";
 import { X } from "lucide-react";
+import { productZones } from "./types/productZones";
 
 interface CanvasContainerProps {
   canvas: Canvas | null;
@@ -10,6 +11,7 @@ interface CanvasContainerProps {
   text: string;
   selectedFont: string;
   onObjectDelete: () => void;
+  selectedCategory: string | null;
 }
 
 const CanvasContainer = ({ 
@@ -18,7 +20,8 @@ const CanvasContainer = ({
   isMobile, 
   text, 
   selectedFont,
-  onObjectDelete 
+  onObjectDelete,
+  selectedCategory 
 }: CanvasContainerProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
@@ -36,6 +39,27 @@ const CanvasContainer = ({
       preserveObjectStacking: true,
     });
 
+    // Find the selected product zone
+    const productZone = productZones.find(zone => zone.id === selectedCategory);
+
+    if (productZone) {
+      // Create a clipping rectangle for the customization zone
+      const clipRect = new fabric.Rect({
+        width: productZone.zone.width,
+        height: productZone.zone.height,
+        left: productZone.zone.left,
+        top: productZone.zone.top,
+        absolutePositioned: true,
+        fill: 'transparent',
+        stroke: '#ddd',
+        strokeDashArray: [5, 5],
+        selectable: false,
+        evented: false,
+      });
+
+      fabricCanvas.clipPath = clipRect;
+    }
+
     const placeholderText = new Text("Tapez votre texte ici...", {
       left: fabricCanvas.width! / 2,
       top: fabricCanvas.height! / 2,
@@ -49,50 +73,59 @@ const CanvasContainer = ({
     });
 
     fabricCanvas.add(placeholderText);
-    fabricCanvas.renderAll();
 
-    fabricCanvas.on('selection:created', (e) => {
-      const obj = e.selected?.[0];
-      if (deleteButtonRef.current) {
-        const bounds = obj?.getBoundingRect();
-        if (bounds) {
-          deleteButtonRef.current.style.display = 'block';
-          deleteButtonRef.current.style.left = `${bounds.left + bounds.width + 10}px`;
-          deleteButtonRef.current.style.top = `${bounds.top}px`;
-        }
-      }
-    });
-
-    fabricCanvas.on('selection:cleared', () => {
-      if (deleteButtonRef.current) {
-        deleteButtonRef.current.style.display = 'none';
-      }
-    });
-
+    // Add object movement constraints
     fabricCanvas.on('object:moving', (e) => {
-      if (deleteButtonRef.current && e.target) {
-        const bounds = e.target.getBoundingRect();
-        deleteButtonRef.current.style.left = `${bounds.left + bounds.width + 10}px`;
-        deleteButtonRef.current.style.top = `${bounds.top}px`;
+      const obj = e.target;
+      if (!obj || !productZone) return;
+
+      const objBounds = obj.getBoundingRect();
+      const zone = productZone.zone;
+
+      // Constrain movement within the customization zone
+      if (objBounds.left < zone.left) {
+        obj.left = zone.left;
+      }
+      if (objBounds.top < zone.top) {
+        obj.top = zone.top;
+      }
+      if (objBounds.left + objBounds.width > zone.left + zone.width) {
+        obj.left = zone.left + zone.width - objBounds.width;
+      }
+      if (objBounds.top + objBounds.height > zone.top + zone.height) {
+        obj.top = zone.top + zone.height - objBounds.height;
       }
     });
 
+    // Add scaling constraints
+    fabricCanvas.on('object:scaling', (e) => {
+      const obj = e.target;
+      if (!obj || !productZone) return;
+
+      const objBounds = obj.getBoundingRect();
+      const zone = productZone.zone;
+
+      if (
+        objBounds.left < zone.left ||
+        objBounds.top < zone.top ||
+        objBounds.left + objBounds.width > zone.left + zone.width ||
+        objBounds.top + objBounds.height > zone.top + zone.height
+      ) {
+        obj.scaleX = obj._previousScaleX || 1;
+        obj.scaleY = obj._previousScaleY || 1;
+      } else {
+        obj._previousScaleX = obj.scaleX;
+        obj._previousScaleY = obj.scaleY;
+      }
+    });
+
+    fabricCanvas.renderAll();
     setCanvas(fabricCanvas);
-
-    const handleResize = () => {
-      const newWidth = isMobile ? window.innerWidth - 32 : 500;
-      const newHeight = isMobile ? window.innerHeight * 0.5 : 600;
-      fabricCanvas.setDimensions({ width: newWidth, height: newHeight });
-      fabricCanvas.renderAll();
-    };
-
-    window.addEventListener('resize', handleResize);
 
     return () => {
       fabricCanvas.dispose();
-      window.removeEventListener('resize', handleResize);
     };
-  }, [isMobile, selectedFont, setCanvas]);
+  }, [isMobile, selectedFont, selectedCategory]);
 
   useEffect(() => {
     if (!canvas) return;

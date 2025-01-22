@@ -82,6 +82,7 @@ const Personalization = () => {
               text={text}
               selectedFont={selectedFont}
               onObjectDelete={handleDeleteActiveObject}
+              selectedCategory={selectedCategory}
             />
           </div>
 

@@ -51,13 +51,31 @@ const CanvasContainer = ({
         top: productZone.zone.top,
         absolutePositioned: true,
         fill: 'transparent',
-        stroke: '#ddd',
+        stroke: '#000000',
+        strokeWidth: 2,
         strokeDashArray: [5, 5],
         selectable: false,
         evented: false,
       });
 
       fabricCanvas.clipPath = clipRect;
+      
+      // Add a visible border rectangle
+      const borderRect = new Rect({
+        width: productZone.zone.width,
+        height: productZone.zone.height,
+        left: productZone.zone.left,
+        top: productZone.zone.top,
+        fill: 'transparent',
+        stroke: '#000000',
+        strokeWidth: 2,
+        strokeDashArray: [5, 5],
+        selectable: false,
+        evented: false,
+      });
+      
+      fabricCanvas.add(borderRect);
+      borderRect.sendToBack();
     }
 
     const placeholderText = new Text("Tapez votre texte ici...", {
@@ -104,7 +122,10 @@ const CanvasContainer = ({
 
       const objBounds = obj.getBoundingRect();
       const zone = productZone.zone;
-      const currentScale = { x: obj.scaleX || 1, y: obj.scaleY || 1 };
+      
+      // Store current scale
+      const currentScaleX = obj.scaleX || 1;
+      const currentScaleY = obj.scaleY || 1;
 
       if (
         objBounds.left < zone.left ||
@@ -113,17 +134,16 @@ const CanvasContainer = ({
         objBounds.top + objBounds.height > zone.top + zone.height
       ) {
         // If object goes outside bounds, revert to previous valid scale
-        obj.set({
-          scaleX: obj.data?.lastValidScaleX || 1,
-          scaleY: obj.data?.lastValidScaleY || 1
-        });
+        if (typeof obj.get('lastScaleX') === 'number') {
+          obj.set('scaleX', obj.get('lastScaleX'));
+        }
+        if (typeof obj.get('lastScaleY') === 'number') {
+          obj.set('scaleY', obj.get('lastScaleY'));
+        }
       } else {
         // Store current scale as last valid scale
-        obj.set('data', {
-          ...obj.data,
-          lastValidScaleX: currentScale.x,
-          lastValidScaleY: currentScale.y
-        });
+        obj.set('lastScaleX', currentScaleX);
+        obj.set('lastScaleY', currentScaleY);
       }
       
       fabricCanvas.renderAll();

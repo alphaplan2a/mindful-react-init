@@ -75,7 +75,7 @@ const CanvasContainer = ({
       });
       
       fabricCanvas.add(borderRect);
-      borderRect.sendToBack();
+      fabricCanvas.sendToBack(borderRect);  // Changed this line to use canvas.sendToBack()
     }
 
     const placeholderText = new Text("Tapez votre texte ici...", {

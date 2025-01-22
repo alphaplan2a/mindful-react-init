@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Canvas, Text } from "fabric";
+import { Canvas, Text, Rect } from "fabric";
 import { Card } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { productZones } from "./types/productZones";
@@ -44,7 +44,7 @@ const CanvasContainer = ({
 
     if (productZone) {
       // Create a clipping rectangle for the customization zone
-      const clipRect = new fabric.Rect({
+      const clipRect = new Rect({
         width: productZone.zone.width,
         height: productZone.zone.height,
         left: productZone.zone.left,
@@ -104,6 +104,7 @@ const CanvasContainer = ({
 
       const objBounds = obj.getBoundingRect();
       const zone = productZone.zone;
+      const currentScale = { x: obj.scaleX || 1, y: obj.scaleY || 1 };
 
       if (
         objBounds.left < zone.left ||
@@ -111,12 +112,21 @@ const CanvasContainer = ({
         objBounds.left + objBounds.width > zone.left + zone.width ||
         objBounds.top + objBounds.height > zone.top + zone.height
       ) {
-        obj.scaleX = obj._previousScaleX || 1;
-        obj.scaleY = obj._previousScaleY || 1;
+        // If object goes outside bounds, revert to previous valid scale
+        obj.set({
+          scaleX: obj.data?.lastValidScaleX || 1,
+          scaleY: obj.data?.lastValidScaleY || 1
+        });
       } else {
-        obj._previousScaleX = obj.scaleX;
-        obj._previousScaleY = obj.scaleY;
+        // Store current scale as last valid scale
+        obj.set('data', {
+          ...obj.data,
+          lastValidScaleX: currentScale.x,
+          lastValidScaleY: currentScale.y
+        });
       }
+      
+      fabricCanvas.renderAll();
     });
 
     fabricCanvas.renderAll();

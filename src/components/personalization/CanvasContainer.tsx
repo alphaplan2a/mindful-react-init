@@ -75,7 +75,7 @@ const CanvasContainer = ({
       });
       
       fabricCanvas.add(borderRect);
-      fabricCanvas.sendObjectToBack(borderRect);  // Using the correct method for Fabric.js v6
+      fabricCanvas.sendObjectToBack(borderRect);
 
       // Initialize placeholder text within the zone
       const placeholderText = new Text("Tapez votre texte ici...", {
@@ -98,30 +98,34 @@ const CanvasContainer = ({
       const obj = e.target;
       if (!obj || !productZone) return;
 
-      const objBounds = obj.getBoundingRect();
+      const objBounds = obj.getBoundingRect(true, true);
       const zone = productZone.zone;
 
-      // Constrain movement within the customization zone
-      let newLeft = obj.left;
-      let newTop = obj.top;
+      // Calculate the object's center position
+      const objCenterX = objBounds.left + objBounds.width / 2;
+      const objCenterY = objBounds.top + objBounds.height / 2;
 
-      if (objBounds.left < zone.left) {
-        newLeft = zone.left;
+      // Calculate zone boundaries
+      const zoneLeft = zone.left;
+      const zoneRight = zone.left + zone.width;
+      const zoneTop = zone.top;
+      const zoneBottom = zone.top + zone.height;
+
+      // Adjust position to keep the object within bounds
+      if (objBounds.left < zoneLeft) {
+        obj.set('left', obj.left + (zoneLeft - objBounds.left));
       }
-      if (objBounds.top < zone.top) {
-        newTop = zone.top;
+      if (objBounds.top < zoneTop) {
+        obj.set('top', obj.top + (zoneTop - objBounds.top));
       }
-      if (objBounds.left + objBounds.width > zone.left + zone.width) {
-        newLeft = zone.left + zone.width - objBounds.width;
+      if (objBounds.left + objBounds.width > zoneRight) {
+        obj.set('left', obj.left - ((objBounds.left + objBounds.width) - zoneRight));
       }
-      if (objBounds.top + objBounds.height > zone.top + zone.height) {
-        newTop = zone.top + zone.height - objBounds.height;
+      if (objBounds.top + objBounds.height > zoneBottom) {
+        obj.set('top', obj.top - ((objBounds.top + objBounds.height) - zoneBottom));
       }
 
-      obj.set({
-        left: newLeft,
-        top: newTop
-      });
+      fabricCanvas.renderAll();
     });
 
     // Add scaling constraints
@@ -129,19 +133,21 @@ const CanvasContainer = ({
       const obj = e.target;
       if (!obj || !productZone) return;
 
-      const objBounds = obj.getBoundingRect();
+      const objBounds = obj.getBoundingRect(true, true);
       const zone = productZone.zone;
       
       // Store current scale
       const currentScaleX = obj.scaleX || 1;
       const currentScaleY = obj.scaleY || 1;
 
-      if (
-        objBounds.left < zone.left ||
-        objBounds.top < zone.top ||
-        objBounds.left + objBounds.width > zone.left + zone.width ||
-        objBounds.top + objBounds.height > zone.top + zone.height
-      ) {
+      // Check if the scaled object is within bounds
+      const isWithinBounds = 
+        objBounds.left >= zone.left &&
+        objBounds.top >= zone.top &&
+        objBounds.left + objBounds.width <= zone.left + zone.width &&
+        objBounds.top + objBounds.height <= zone.top + zone.height;
+
+      if (!isWithinBounds) {
         // If object goes outside bounds, revert to previous valid scale
         if (typeof obj.get('lastScaleX') === 'number') {
           obj.set('scaleX', obj.get('lastScaleX'));

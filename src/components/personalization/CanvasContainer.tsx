@@ -76,21 +76,22 @@ const CanvasContainer = ({
       
       fabricCanvas.add(borderRect);
       fabricCanvas.sendObjectToBack(borderRect);  // Using the correct method for Fabric.js v6
+
+      // Initialize placeholder text within the zone
+      const placeholderText = new Text("Tapez votre texte ici...", {
+        left: productZone.zone.left + productZone.zone.width / 2,
+        top: productZone.zone.top + productZone.zone.height / 2,
+        fontSize: 20,
+        fill: "#999999",
+        fontFamily: selectedFont,
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        opacity: 0.7
+      });
+
+      fabricCanvas.add(placeholderText);
     }
-
-    const placeholderText = new Text("Tapez votre texte ici...", {
-      left: fabricCanvas.width! / 2,
-      top: fabricCanvas.height! / 2,
-      fontSize: 20,
-      fill: "#999999",
-      fontFamily: selectedFont,
-      originX: 'center',
-      originY: 'center',
-      selectable: false,
-      opacity: 0.7
-    });
-
-    fabricCanvas.add(placeholderText);
 
     // Add object movement constraints
     fabricCanvas.on('object:moving', (e) => {
@@ -101,18 +102,26 @@ const CanvasContainer = ({
       const zone = productZone.zone;
 
       // Constrain movement within the customization zone
+      let newLeft = obj.left;
+      let newTop = obj.top;
+
       if (objBounds.left < zone.left) {
-        obj.left = zone.left;
+        newLeft = zone.left;
       }
       if (objBounds.top < zone.top) {
-        obj.top = zone.top;
+        newTop = zone.top;
       }
       if (objBounds.left + objBounds.width > zone.left + zone.width) {
-        obj.left = zone.left + zone.width - objBounds.width;
+        newLeft = zone.left + zone.width - objBounds.width;
       }
       if (objBounds.top + objBounds.height > zone.top + zone.height) {
-        obj.top = zone.top + zone.height - objBounds.height;
+        newTop = zone.top + zone.height - objBounds.height;
       }
+
+      obj.set({
+        left: newLeft,
+        top: newTop
+      });
     });
 
     // Add scaling constraints
@@ -158,15 +167,18 @@ const CanvasContainer = ({
   }, [isMobile, selectedFont, selectedCategory]);
 
   useEffect(() => {
-    if (!canvas) return;
+    if (!canvas || !selectedCategory) return;
+
+    const productZone = productZones.find(zone => zone.id === selectedCategory);
+    if (!productZone) return;
 
     const existingTexts = canvas.getObjects().filter(obj => obj instanceof Text);
     existingTexts.forEach(textObj => canvas.remove(textObj));
 
     if (text) {
       const fabricText = new Text(text, {
-        left: canvas.width! / 2,
-        top: canvas.height! / 2,
+        left: productZone.zone.left + productZone.zone.width / 2,
+        top: productZone.zone.top + productZone.zone.height / 2,
         fontSize: 16,
         fill: "#000000",
         fontFamily: selectedFont,
@@ -185,8 +197,8 @@ const CanvasContainer = ({
       canvas.setActiveObject(fabricText);
     } else {
       const placeholderText = new Text("Tapez votre texte ici...", {
-        left: canvas.width! / 2,
-        top: canvas.height! / 2,
+        left: productZone.zone.left + productZone.zone.width / 2,
+        top: productZone.zone.top + productZone.zone.height / 2,
         fontSize: 20,
         fill: "#999999",
         fontFamily: selectedFont,
@@ -199,7 +211,7 @@ const CanvasContainer = ({
     }
 
     canvas.renderAll();
-  }, [text, canvas, selectedFont]);
+  }, [text, canvas, selectedFont, selectedCategory]);
 
   return (
     <Card className="p-4 lg:p-6">

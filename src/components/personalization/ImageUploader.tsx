@@ -5,17 +5,22 @@ import { Label } from "@/components/ui/label";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { Canvas, Image as FabricImage } from "fabric";
+import { productZones } from "./types/productZones";
 
 interface ImageUploaderProps {
   canvas: Canvas | null;
   onImageUpload: (image: { id: string; url: string; name: string }) => void;
+  selectedCategory: string | null;
 }
 
-const ImageUploader = ({ canvas, onImageUpload }: ImageUploaderProps) => {
+const ImageUploader = ({ canvas, onImageUpload, selectedCategory }: ImageUploaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!canvas || !event.target.files?.[0]) return;
+    if (!canvas || !event.target.files?.[0] || !selectedCategory) return;
+
+    const productZone = productZones.find(zone => zone.id === selectedCategory);
+    if (!productZone) return;
 
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -29,8 +34,8 @@ const ImageUploader = ({ canvas, onImageUpload }: ImageUploaderProps) => {
         if (fabricImage) {
           fabricImage.scaleToWidth(150);
           fabricImage.set({
-            left: canvas.width! / 2,
-            top: canvas.height! / 2,
+            left: productZone.zone.left + productZone.zone.width / 2,
+            top: productZone.zone.top + productZone.zone.height / 2,
             originX: 'center',
             originY: 'center',
             cornerColor: 'rgba(102,153,255,0.5)',
